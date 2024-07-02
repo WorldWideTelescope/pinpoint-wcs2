@@ -15,10 +15,6 @@ find_package(Qt5 COMPONENTS Core Network Widgets REQUIRED)
 
 find_package(CFITSIO REQUIRED)
 
-find_package(WCSLIB REQUIRED)
-
-# Yes, libwcs and wcslib are different things, and we currently need both of
-# them.
 find_package(LIBWCS REQUIRED)
 
 find_package(Eigen3 REQUIRED)
@@ -30,7 +26,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/gui
     ${CMAKE_SOURCE_DIR}
     ${EIGEN3_INCLUDE_DIR}
-    ${WCSLIB_INCLUDES}
     ${LIBWCS_INCLUDE_DIR}
     ${CFITSIO_INCLUDE_DIR}
     ${XPA_INCLUDE_DIR}
