@@ -23,23 +23,23 @@
 CoordinateTableDialog::CoordinateTableDialog(QWidget *parent)
 : QDialog(parent)
 {
-	// Set up user interface from the Designer file
-	qDebug() << "Initializing CoordinateTableDialog ...";
-	ui = Ui::CoordinateTableDialog();
+    // Set up user interface from the Designer file
+    qDebug() << "Initializing CoordinateTableDialog ...";
+    ui = Ui::CoordinateTableDialog();
     ui.setupUi(this);
 /*
-	// Set up frame style
-	setFrameStyle(QFrame::Panel | QFrame::StyledPanel);
-	
-	// Set up colors
-	setAutoFillBackground(true);
-	setBackgroundRole(QPalette::Window);
-	QPalette palette;
-	QColor bgcolor = QColor(0, 0, 0, 100);
-	QColor textcolor = QColor(230, 230, 230);
-	palette.setColor(QPalette::Background, bgcolor);
-	palette.setColor(QPalette::WindowText, textcolor);
-	setPalette(palette);
+    // Set up frame style
+    setFrameStyle(QFrame::Panel | QFrame::StyledPanel);
+
+    // Set up colors
+    setAutoFillBackground(true);
+    setBackgroundRole(QPalette::Window);
+    QPalette palette;
+    QColor bgcolor = QColor(0, 0, 0, 100);
+    QColor textcolor = QColor(230, 230, 230);
+    palette.setColor(QPalette::Background, bgcolor);
+    palette.setColor(QPalette::WindowText, textcolor);
+    setPalette(palette);
 */
 }
 
@@ -49,22 +49,22 @@ CoordinateTableDialog::~CoordinateTableDialog()
 
 void CoordinateTableDialog::toggle()
 {
-	if (isVisible())
-		close();
-	else
-	{
-		if (lastPos.isNull())
-			show();
-		else
-		{
-			move(lastPos);
-			show();
-		}
-	}
+    if (isVisible())
+        close();
+    else
+    {
+        if (lastPos.isNull())
+            show();
+        else
+        {
+            move(lastPos);
+            show();
+        }
+    }
 }
 
 void CoordinateTableDialog::closeEvent(QCloseEvent *event)
 {
-	lastPos = pos();
-	QDialog::closeEvent(event);
+    lastPos = pos();
+    QDialog::closeEvent(event);
 }
