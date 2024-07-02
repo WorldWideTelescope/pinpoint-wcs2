@@ -25,18 +25,18 @@
 AboutDialog::AboutDialog(QWidget *parent)
 : QDialog(parent, Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint)
 {
-	// Set up user interface from the Designer file
-	qDebug() << "Initializing About Dialog ...";
+    // Set up user interface from the Designer file
+    qDebug() << "Initializing About Dialog ...";
     ui.setupUi(this);
-	
-	// Get version and revision info from version.h
-	QString version = QString("Version %1\n(rev %2)").arg(VERSION).arg(REVISION);
-	ui.version->setText(version);
-	
-	// Set the logo
-	logo = new QPixmap;
-	logo->load(":/gui/images/logo.png");
-	ui.logoLabel->setPixmap(*logo);
+
+    // Get version and revision info from version.h
+    QString version = QString("Version %1\n(rev %2)").arg(VERSION).arg(REVISION);
+    ui.version->setText(version);
+
+    // Set the logo
+    logo = new QPixmap;
+    logo->load(":/gui/images/logo.png");
+    ui.logoLabel->setPixmap(*logo);
 }
 
 AboutDialog::~AboutDialog() {}
