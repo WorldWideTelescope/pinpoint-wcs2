@@ -94,7 +94,6 @@ private:
 	long numelements;
 	long* fpixel;
 	int bitpix;
-	float* renderdata;
 	float lowerPercentile;
 	float upperPercentile;
 	char alt;

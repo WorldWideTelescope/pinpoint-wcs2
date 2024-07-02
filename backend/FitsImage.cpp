@@ -35,7 +35,6 @@ FitsImage::FitsImage(QString &fileName) : PPWcsImage()
     upperPercentile = 0.9975;
     fptr = nullptr;
     imagedata = nullptr;
-    renderdata = nullptr;
     downsampled = false;
 }
 
@@ -164,14 +163,6 @@ FitsImage::setup()
 
         calculatePercentile(lowerPercentile, upperPercentile);
 
-        // Initialize a working array
-        renderdata = new float[numelements];
-        if (!renderdata)
-        {
-            delete[] imagedata;
-            continue;
-        }
-
         if (!calibrateImage(LINEAR_STRETCH, vmin, vmax))
             continue;
 
@@ -206,9 +197,9 @@ bool FitsImage::verifyWCS()
     if (nowcs(wcs))
     {
         // No primary WCS found, check alternates
-        int ii;
         const char *alts = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        for (ii=0; ii<26; ii++)
+
+        for (int ii = 0; ii<26; ii++)
         {
             wcs = wcsinitc(header, (char *) &alts[ii]);
             if (nowcs(wcs))
@@ -289,10 +280,10 @@ void FitsImage::downsample(int W, int H, int S, int* newW, int* newH)
 bool FitsImage::calculatePercentile(float lp, float up)
 {
     // Set some variables and parameters
-    int ii;
     float* sample = NULL;
     long samplesize;
     int nth;
+
     if (downsampled)
     {
         // Determine sample size
@@ -313,7 +304,7 @@ bool FitsImage::calculatePercentile(float lp, float up)
     }
 
     // Copy every nth element
-    for (ii=0; ii<samplesize; ii++)
+    for (int ii = 0; ii<samplesize; ii++)
         sample[ii] = imagedata[ii*nth];
 
     // Sort using the standard library
@@ -338,13 +329,12 @@ bool FitsImage::calculatePercentile(float lp, float up)
 }
 
 
-bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
+bool
+FitsImage::calibrateImage(int s, float minpix, float maxpix)
 {
-    // Initialize a working array
-    renderdata = new float[numelements];
+    float *renderdata = new float[numelements];
     if (!renderdata)
     {
-        delete[] imagedata;
         return false;
     }
 
@@ -352,6 +342,7 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
     difference = maxpix - minpix;
     stretch = s;
     int i;
+
     switch (stretch) {
         case LOG_STRETCH:
             for (i = 0; i < numelements; i++)
@@ -366,10 +357,11 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
                     renderdata[i] = maxpix;
 
                 // Scale the array
-                renderdata[i] = (renderdata[i] - minpix)/difference;
-                renderdata[i] = log10(renderdata[i]/0.05 + 1.0) / log10(1.0/0.05 +1.0);
+                renderdata[i] = (renderdata[i] - minpix) / difference;
+                renderdata[i] = log10(renderdata[i] / 0.05 + 1.0) / log10(1.0/0.05 +1.0);
             }
             break;
+
         case SQRT_STRETCH:
             for (i = 0; i < numelements; i++)
             {
@@ -387,6 +379,7 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
                 renderdata[i] = sqrt(renderdata[i]);
             }
             break;
+
         case ARCSINH_STRETCH:
             for (i = 0; i < numelements; i++)
             {
@@ -404,6 +397,7 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
                 renderdata[i] = asinh(renderdata[i]/-0.033) / asinh(1.0/-0.033);
             }
             break;
+
         case POWER_STRETCH:
             for (i = 0; i < numelements; i++)
             {
@@ -421,6 +415,7 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
                 renderdata[i] = pow(renderdata[i], 2);
             }
             break;
+
         default:
             for (i = 0; i < numelements; i++)
             {
@@ -443,81 +438,41 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
     QImage *image = new QImage(width, height, QImage::Format_RGB32);
 
     // Set pixels, depending on invert and BITPIX
-    int ii, jj;
-    if (inverted)
-    {
-        if (bitpix < 0)
+
+    if (inverted) {
+        for (int ii = 0; ii < height; ii++)
         {
-            for (ii=0; ii<height; ii++)
+            for (int jj = 0; jj < width; jj++)
             {
-                for (jj=0; jj<width; jj++)
-                {
-                    long index = jj+width*(height-ii-1);
-                    int pixel = 255 - floor(255.0 * renderdata[index] + 0.5);
-                    image->setPixel(jj, ii, qRgb(pixel, pixel, pixel));
-                }
+                long index = jj + width * (height - ii - 1);
+                int pixel = 255 - floor(255.0 * renderdata[index] + 0.5);
+                image->setPixel(jj, ii, qRgb(pixel, pixel, pixel));
             }
         }
-        else
+    } else {
+        for (int ii = 0; ii < height; ii++)
         {
-            for (ii=0; ii<height; ii++)
+            for (int jj = 0; jj < width; jj++)
             {
-                for (jj=0; jj<width; jj++)
-                {
-                    long index = jj+width*(height-ii-1);
-                    int pixel = 255 - floor(255.0 * renderdata[index] + 0.5);
-                    QRgb *p = (QRgb *) image->scanLine(ii) + jj;
-                    *p = qRgb(pixel, pixel, pixel);
-                }
-            }
-        }
-    }
-    else
-    {
-        if (bitpix < 0)
-        {
-            for (ii=0; ii<height; ii++)
-            {
-                for (jj=0; jj<width; jj++)
-                {
-                    long index = jj+width*(height-ii-1);
-                    int pixel = floor(255.0 * renderdata[index] + 0.5);
-                    image->setPixel(jj, ii, qRgb(pixel, pixel, pixel));
-                }
-            }
-        }
-        else
-        {
-            for (ii=0; ii<height; ii++)
-            {
-                for (jj=0; jj<width; jj++)
-                {
-                    long index = jj+width*(height-ii-1);
-                    int pixel = floor(255.0 * renderdata[index] + 0.5);
-                    QRgb *p = reinterpret_cast<QRgb*>(image->scanLine(ii) + jj);
-                    //QRgb *p = new (QRgb)(image->scanline(ii) +jj);
-                    *p = qRgb(pixel, pixel, pixel);
-                }
+                long index = jj + width * (height - ii - 1);
+                int pixel = floor(255.0 * renderdata[index] + 0.5);
+                image->setPixel(jj, ii, qRgb(pixel, pixel, pixel));
             }
         }
     }
 
-    // Free some memory
     delete[] renderdata;
 
-    // Set pixmap
     pixmap = QPixmap(QPixmap::fromImage(*image, Qt::DiffuseDither));
-
-    // Delete the image
     delete image;
 
-    // Emit signal to broadcast the new pixmap and slider values
     emit pixmapChanged(&pixmap);
-
     return true;
 }
 
-void FitsImage::setStretch(int s)
+
+void
+FitsImage::setStretch(int s)
 {
     calibrateImage(s, vmin, vmax);
 }
@@ -589,7 +544,7 @@ void FitsImage::getCentroid(QPointF pos)
     QPointF testPos;
     bool changed;
 
-    for (int ii=0; ii<10; ii++)
+    for (int ii = 0; ii < 10; ii++)
     {
         max = pixelIntensity(intPos);
         changed = false;
