@@ -21,8 +21,8 @@
 
 #include <algorithm>
 #include <exception>
+#include <cmath>
 
-#include "math.h"
 #include "FitsImage.h"
 #include "PinpointWCSUtils.h"
 
@@ -141,6 +141,10 @@ FitsImage::setup()
             fits_report_error(stderr, status);
             continue;
         }
+
+        for (int i = 0; i < numelements; i++)
+            if (std::isnan(imagedata[i]))
+                imagedata[i] = 0;
 
         inverted = false;
 
