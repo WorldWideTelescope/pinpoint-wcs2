@@ -25,13 +25,13 @@
 MessageBox::MessageBox(const QString &title, QWidget *parent, Qt::WindowFlags f)
 : QMessageBox(QMessageBox::NoIcon, title, "", QMessageBox::Ok, parent, f)
 {
-	icon = new QPixmap;
-	setWindowModality(Qt::ApplicationModal);
+    icon = new QPixmap;
+    setWindowModality(Qt::ApplicationModal);
 }
 
 MessageBox::~MessageBox()
 {
-	delete icon;
+    delete icon;
 }
 //message box for a bad fits file
 void MessageBox::badFITS(){
@@ -43,22 +43,22 @@ void MessageBox::badFITS(){
 
 void MessageBox::setStatus(bool status)
 {
-	if (status)
-	{
-		setText("<b>WCS Exported Successfully!</b>");
-		icon->load(":/gui/images/good.png");
-	}
-	else
-	{
-		setText("Something went wrong.  Check that:<p><ul><li>The image is in the same directory as when imported</li><li>The image is not locked</li><li>The image has not been deleted</li><li>The astronomical object hasn't disappeared into the nether regions of the multiverse.</li></p>");
-		icon->load(":/gui/images/bad.png");
-	}
-	setIconPixmap(*icon);
+    if (status)
+    {
+        setText("<b>WCS Exported Successfully!</b>");
+        icon->load(":/gui/images/good.png");
+    }
+    else
+    {
+        setText("Something went wrong.  Check that:<p><ul><li>The image is in the same directory as when imported</li><li>The image is not locked</li><li>The image has not been deleted</li><li>The astronomical object hasn't disappeared into the nether regions of the multiverse.</li></p>");
+        icon->load(":/gui/images/bad.png");
+    }
+    setIconPixmap(*icon);
 }
 
 void MessageBox::closeEvent(QCloseEvent *event)
 {
-	QMessageBox::closeEvent(event);
-	qDebug() << "closeEvent";
-	this->~MessageBox();
+    QMessageBox::closeEvent(event);
+    qDebug() << "closeEvent";
+    this->~MessageBox();
 }
