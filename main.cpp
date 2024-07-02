@@ -27,31 +27,31 @@
 
 int main(int argc, char *argv[])
 {
-	/*
-	time_t seconds;
-	seconds = time(NULL);
-	std::cout << seconds << std::endl;
-	*/
-	
-	// Initialize application
-	QApplication app(argc, argv);
-	app.setApplicationName("PinpointWCS");
-	app.setApplicationVersion(VERSION);
-	app.setOrganizationName("SAO");
-	app.setOrganizationDomain("http://www.cfa.harvard.edu/~akapadia/pinpointwcs");
+    /*
+    time_t seconds;
+    seconds = time(NULL);
+    std::cout << seconds << std::endl;
+    */
+
+    // Initialize application
+    QApplication app(argc, argv);
+    app.setApplicationName("PinpointWCS");
+    app.setApplicationVersion(VERSION);
+    app.setOrganizationName("SAO");
+    app.setOrganizationDomain("http://www.cfa.harvard.edu/~akapadia/pinpointwcs");
     app.setWindowIcon(QIcon("./images/logo.icns"));
-	/*
-	// Set style sheet
+    /*
+    // Set style sheet
     QFile styleSheet(":/gui/style.qss");
     if (!styleSheet.open(QIODevice::ReadOnly)) {
         qWarning("Unable to open :/gui/style.qss");
     }
     qApp->setStyleSheet(styleSheet.readAll());
-	 */
-	
-	// Set up main window
-	MainWindow mainwindow;
-	mainwindow.show();
-	
-	return app.exec();
+     */
+
+    // Set up main window
+    MainWindow mainwindow;
+    mainwindow.show();
+
+    return app.exec();
 }
