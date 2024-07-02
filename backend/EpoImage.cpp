@@ -24,48 +24,48 @@
 
 EpoImage::EpoImage(QString filename) : PPWcsImage()
 {
-	qDebug() << "Initializing EpoImage object ...";
+    qDebug() << "Initializing EpoImage object ...";
         pixmap = new QPixmap(filename); //needs to be under 128mb
 
 
 
-	naxisn[0] = pixmap->width();
-	naxisn[1] = pixmap->height();
-	
-	inverted = false;
-	// Call finishInit from base class
-	finishInitialization();
+    naxisn[0] = pixmap->width();
+    naxisn[1] = pixmap->height();
+
+    inverted = false;
+    // Call finishInit from base class
+    finishInitialization();
 }
 
 EpoImage::~EpoImage()
 {
-	delete pixmap;
+    delete pixmap;
 }
 
 void EpoImage::invert()
 {
-	qDebug() << "Inverting EPO Image ...";
-	QImage image = pixmap->toImage();
-	image.invertPixels(QImage::InvertRgb);
-	*pixmap = QPixmap::fromImage(image, Qt::DiffuseDither);
-	inverted = !inverted;
-	emit pixmapChanged(pixmap);
+    qDebug() << "Inverting EPO Image ...";
+    QImage image = pixmap->toImage();
+    image.invertPixels(QImage::InvertRgb);
+    *pixmap = QPixmap::fromImage(image, Qt::DiffuseDither);
+    inverted = !inverted;
+    emit pixmapChanged(pixmap);
 }
 
 double* EpoImage::pix2sky(QPointF pos)
 {
-	if (!wcs)
-		return world;
-	
-	// Get unbinned pixel
-	float xf, yf;
-	
-	// Transform QGraphicsScene pixels to FITS pixels
+    if (!wcs)
+        return world;
+
+    // Get unbinned pixel
+    float xf, yf;
+
+    // Transform QGraphicsScene pixels to FITS pixels
         xf = pos.x() + 0.5;
         yf = naxisn[1] - pos.y() + 0.5;
 
-	pix2wcs(wcs, xf, yf, &world[0], &world[1]);
-	
-	// Perhaps the transformationStatus needs to be checked ...
-	return world;
+    pix2wcs(wcs, xf, yf, &world[0], &world[1]);
+
+    // Perhaps the transformationStatus needs to be checked ...
+    return world;
 }
