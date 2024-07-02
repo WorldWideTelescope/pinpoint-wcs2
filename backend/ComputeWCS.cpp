@@ -18,18 +18,19 @@
  */
 
 using namespace std;
-#include <math.h>
+
+#include <cmath>
+#include <iostream>
+
 #include <Eigen/LU>
 #include <QDebug>
+
 #include "ComputeWCS.h"
-#include "math.h"
 #include "PinpointWCSUtils.h"
-#include <iostream>
 
 
 ComputeWCS::ComputeWCS(QList<QPointF> *ref, QList<QPointF> *epo, struct WorldCoor *refWCS, double w, double h)
 {
-    qDebug() << "Initializing ComputeWCS ...";
     refCoords = ref;
     epoCoords = epo;
     referenceWCS = refWCS;
@@ -70,8 +71,6 @@ void ComputeWCS::initializeMatrixVectors()
 //ComputeTargetWCS
 void ComputeWCS::computeTargetWCS()
 {
-    qDebug() << "Attempting to compute EPO WCS ...";
-
     // Check if enough points have been selected
     int numPoints;
     if (epoCoords->size() >= 3)
@@ -124,7 +123,7 @@ void ComputeWCS::computeTargetWCS()
 
         // Determine the celestial coordinates for ref0
         pix2wcs(referenceWCS, ref0[0], ref0[1], &crval[0], &crval[1]);
-        qDebug()<<referenceWCS;
+
         // Coordinate axis flipped, need to make adjustment
         // TODO: Find sample data to test this with
         if (referenceWCS->coorflip == 1)
@@ -272,11 +271,7 @@ void ComputeWCS::computeSums(int numPoints)
         matrix += basis * basis.transpose(); //1x3 * 3x1 = scalar
         xvector += point1.x() * basis;  //Multiply by the basis
         yvector += point1.y() * basis;
-       qDebug() <<"Matrix in compute sums is: ";
-       std::cout<<matrix<<endl;
-       //qDebug() << xvector[ii];
-        }
-
+    }
 }
 
 //solving the linear sstem of matrix x vector
@@ -372,7 +367,6 @@ Vector2d ComputeWCS::fitsToEpo(double x, double y)
 }
 
 
-
 Vector2d ComputeWCS::epoToFits(QPointF *p)
 {
     Vector2d coordinate;
@@ -381,7 +375,6 @@ Vector2d ComputeWCS::epoToFits(QPointF *p)
     // y_r = d*x + f*b + g
     coordinate(0) = xcoeff[0] * p->x() + xcoeff[1] * p->y() + xcoeff[2];
     coordinate(1) = ycoeff[0] * p->x() + ycoeff[1] * p->y() + ycoeff[2];
-    qDebug() <<"The epotofits "<<coordinate(0)<<" "<<coordinate(1);
     return coordinate;
 }
 
@@ -421,5 +414,4 @@ Vector2d ComputeWCS::gsPix2fitsPix(Vector2d p)
 void ComputeWCS::setDownsampleFactor(int factor)
 {
     M = factor;
-    qDebug() << "From inside ComputeWCS:setDownSampleFactor:\t" << M;
 }

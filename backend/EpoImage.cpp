@@ -24,33 +24,30 @@
 
 EpoImage::EpoImage(QString filename) : PPWcsImage()
 {
-    qDebug() << "Initializing EpoImage object ...";
-        pixmap = new QPixmap(filename); //needs to be under 128mb
-
-
-
+    pixmap = new QPixmap(filename); //needs to be under 128mb
     naxisn[0] = pixmap->width();
     naxisn[1] = pixmap->height();
-
     inverted = false;
     // Call finishInit from base class
     finishInitialization();
 }
+
 
 EpoImage::~EpoImage()
 {
     delete pixmap;
 }
 
+
 void EpoImage::invert()
 {
-    qDebug() << "Inverting EPO Image ...";
     QImage image = pixmap->toImage();
     image.invertPixels(QImage::InvertRgb);
     *pixmap = QPixmap::fromImage(image, Qt::DiffuseDither);
     inverted = !inverted;
     emit pixmapChanged(pixmap);
 }
+
 
 double* EpoImage::pix2sky(QPointF pos)
 {

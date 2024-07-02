@@ -166,15 +166,16 @@ void CoordinateModel::updateData(GraphicsScene *scene, QPointF newCoord, QPointF
     updateData(scene, newCoord, oldCoord, index, Qt::EditRole);
 }
 
+
 bool CoordinateModel::updateData(GraphicsScene *scene, const QVariant &newValue, const QVariant &oldValue, QModelIndex *index, int role)
 {
     if (role == Qt::EditRole)
     {
         MoveCommand *m = new MoveCommand(scene, newValue, oldValue, this, index);
-        qDebug() << m;
         undoStack->push(m);
         return true;
     }
+
     return false;
 }
 

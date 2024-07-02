@@ -22,8 +22,6 @@
 
 PPWcsImage::PPWcsImage()
 {
-    qDebug() << "Initializing PPWcsImage object ...";
-
     // Initialize attributes common to all base classes
     wcs = NULL;
     M = 1;

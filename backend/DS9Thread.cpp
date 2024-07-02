@@ -45,8 +45,6 @@ DS9Thread::run()
     ds9path = settings.value("ds9path", "/Applications/SAOImage DS9.app/Contents/MacOS/ds9").toString() + "/Contents/MacOS/ds9";
 #endif
 
-    qDebug() << ds9path;
-
     // Determine if any XPA connections to DS9 are open
     char **classes;
     char **names;
@@ -90,7 +88,7 @@ DS9Thread::run()
             n = XPANSLookup(xpa, (char *) "ds9*", (char *) "s", &classes, &names, &methods, &infos);
             if (n > xpaconns)
                 break;
-            qDebug() << "Sleeping ...";
+
             attempt++;
             this->sleep(3);
         }
@@ -146,8 +144,6 @@ DS9Thread::run()
         got = XPASet(xpa, method, (char *) "zoom to fit", (char *) "", NULL, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, (char *) "frame next", (char *) "", NULL, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, (char *) "zoom to fit", (char *) "", NULL, 0, nombres, msgs, NXPA);
-        qDebug() << nombres[0];
-        qDebug() << msgs[0];
 
         // Close the XPA persistent connection
         XPAClose(xpa);

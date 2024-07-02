@@ -30,8 +30,6 @@ RemoteData::~RemoteData()
 
 void RemoteData::pingSimbad()
 {
-    qDebug() << "Pinging SIMBAD ...";
-
     // Generate URL
     QUrlQuery q;
     q.addQueryItem("Coord", "210.801871+54.348181");
@@ -71,7 +69,5 @@ void RemoteData::pingSimbad()
 
 void RemoteData::retreiveSIMBAD(QNetworkReply* reply)
 {
-    qDebug() << "Retreiving from SIMBAD ...";
     QByteArray response(reply->readAll());
-    qDebug() << response;
 }

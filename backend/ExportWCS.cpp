@@ -315,8 +315,6 @@ void ExportWCS::exportAVMDetailed()
 
 void ExportWCS::exportXMP()
 {
-    qDebug() << "Attempting to export XMP Packet ...";
-
     std::string f = filename->toStdString();
 
     // Initialize the Adobe XMP Toolkit
@@ -347,9 +345,6 @@ void ExportWCS::exportXMP()
             ok = epoimage.OpenFile(f, kXMP_UnknownFile, opts);
             if (!ok)
             {
-                qDebug() << "No smart handler available for the file.";
-                qDebug() << "Trying packet scanning ...";
-
                 // Packet scanning technique
                 opts = kXMPFiles_OpenForUpdate|kXMPFiles_OpenUsePacketScanning;
                 ok = epoimage.OpenFile(f, kXMP_UnknownFile, opts);
@@ -466,7 +461,6 @@ void ExportWCS::exportXMP()
     }
     else
     {
-        qDebug() << "Could not initialize SXMPFiles!";
         // Broadcast results
         emit exportResults(false);
     }
@@ -474,8 +468,6 @@ void ExportWCS::exportXMP()
 
 void ExportWCS::exportAVM(bool detailed)
 {
-    qDebug() << "Attempting to export AVM ...";
-
     std::string f = filename->toStdString();
 
     // Initialize the Adobe XMP Toolkit
@@ -506,9 +498,6 @@ void ExportWCS::exportAVM(bool detailed)
             ok = epoimage.OpenFile(f, kXMP_UnknownFile, opts);
             if (!ok)
             {
-                qDebug() << "No smart handler available for the file.";
-                qDebug() << "Trying packet scanning ...";
-
                 // Packet scanning technique
                 opts = kXMPFiles_OpenForUpdate|kXMPFiles_OpenUsePacketScanning;
                 ok = epoimage.OpenFile(f, kXMP_UnknownFile, opts);
@@ -644,8 +633,6 @@ void ExportWCS::exportAVM(bool detailed)
     }
     else
     {
-                qDebug() << "Could not initialize SXMPFiles!";
-
         // Broadcast results
         emit exportResults(false);
     }
