@@ -44,15 +44,15 @@ QT_END_NAMESPACE
 #define POWER_STRETCH 4
 
 class FitsImage : public PPWcsImage {
-	
+
 	Q_OBJECT
-	
+
 public:
 	// Methods
 	FitsImage(QString &fileName);
     ~FitsImage() override;
 	bool setup();
-	
+
 	QString filename;
 	float minpixel, maxpixel, difference;
 	float vmin, vmax, lowerLimit, upperLimit;
@@ -60,10 +60,10 @@ public:
 	float* imagedata;
 	int stretch;
     QPixmap pixmap;
-	
+
 	// Public Methods
 	QPointF fpix2pix(QPointF pos);
-	
+
 public slots:
 	void setStretch(int s);
 	void setVmin(float minpix);
@@ -71,21 +71,21 @@ public slots:
 	void invert();
 	void getCentroid(QPointF pos);
     double* pix2sky(QPointF pos) override;
-	
+
 signals:
 	void pixmapChanged(QPixmap *pm);
 	void centroid(QPointF pos);
     void badFile(bool foo);
-	
+
 private:
 	// Methods
 	bool verifyWCS();
 	void calculateExtremals();
-	void downsample(float** arr, int W, int H, int S, int* newW, int* newH);
+	void downsample(int W, int H, int S, int* newW, int* newH);
 	bool calculatePercentile(float lp, float up);
 	bool calibrateImage(int s, float minpix, float maxpix);
 	float pixelIntensity(QPointF pos);
-		
+
 	// Attributes
 	fitsfile *fptr;
 	int status, wcsstatus;

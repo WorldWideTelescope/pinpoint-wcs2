@@ -29,42 +29,37 @@
 
 FitsImage::FitsImage(QString &fileName) : PPWcsImage()
 {
-    // Initialize some attributes
     filename = fileName;
     status = 0;
     lowerPercentile = 0.0025;
     upperPercentile = 0.9975;
-    // Initialize some attributes
     fptr = nullptr;
     imagedata = nullptr;
     renderdata = nullptr;
-
     downsampled = false;
-
 }
 
 
 FitsImage::~FitsImage()
 {
     if(imagedata != nullptr)
-        free(imagedata);
+        delete[] imagedata;
 
     if(fptr != nullptr)
         free(fptr);
 }
 
 
-bool FitsImage::setup()
+bool
+FitsImage::setup()
 {
-    // Open FITS file
     fits_open_file(&fptr, filename.toStdString().c_str(), READONLY, &status);
     if (status)
     {
         fits_report_error(stderr, status);
         return false;
     }
-    //beef this up to report an error window instead of crashing
-    // Check the number of HDUs
+
     fits_get_num_hdus(fptr, &numhdus, &status);
     if (status)
     {
@@ -72,34 +67,21 @@ bool FitsImage::setup()
         return false;
     }
 
-    // Set number of images to zero
     numimgs = 0;
-    //Check for image
-    if(numhdus > 0){
-        for (int ii = 1; ii < numhdus; ii++) {
-            // Change to another HDU and check type
-            fits_movabs_hdu(fptr, ii, &hdutype, &status);
-            fits_get_hdu_type(fptr, &hdutype, &status);
 
-            if (hdutype != IMAGE_HDU){
-                emit badFile(true);
-                return false; //should go back to thread
-            }
-        }
-    }//end image check
-    // Begin looping over each HDU
-    for (int kk=1; kk <= numhdus; kk++)
+    for (int kk = 1; kk <= numhdus; kk++)
     {
-        int ii;
         status = 0;
 
         // Change to another HDU and check type
         fits_movabs_hdu(fptr, kk, &hdutype, &status);
         fits_get_hdu_type(fptr, &hdutype, &status);
 
-        if (hdutype != IMAGE_HDU){
+        if (hdutype != IMAGE_HDU) {
+            // PKGW: not at all clear to me that this error handling
+            // is correct.
             QMessageBox msgBox;
-            msgBox.setText("This is not a FITS Image");
+            msgBox.setText("This is not a FITS image");
             msgBox.exec();
             continue;
         }
@@ -131,13 +113,10 @@ bool FitsImage::setup()
         height = naxisn[1];
 
         // Check that the image contains sufficient WCS
-        if ( !verifyWCS() )
+        if (!verifyWCS())
             continue;
 
-        // Compute the total number of pixels in image array
-        numelements = width*height;
-
-        // The HDU is a valid image, increment
+        numelements = width * height;
         numimgs++;
 
         // Determine the data type of image (i.e. bitpix)
@@ -148,51 +127,26 @@ bool FitsImage::setup()
             continue;
         }
 
-        // Allocate memory for the first pixel
-        //fpixel = (long *) malloc(naxis * sizeof(long)); Old Style,
-        fpixel = new long(naxis * sizeof (long));
-        // Initialize the first pixel location to {1, ..., 1}
-        for (ii=0; ii<naxis; ii++)
-            fpixel[ii] = 1;
+        long fpixel[2] = { 1, 1 };
 
-        // Allocate memory for the image pixels
-        imagedata= (float *)malloc(numelements * sizeof(float));
-        //imagedata = new float(numelements * sizeof(float));//arrays allocated with new crash?
+        imagedata = new float[numelements];
         if (!imagedata)
         {
-            delete(fpixel);
             continue;
         }
 
         fits_read_pix(fptr, TFLOAT, fpixel, numelements, nullptr, imagedata, NULL, &status);
-        delete(fpixel);
-
         if (status)
         {
-            // Free the allocated memory
-            delete(imagedata);
+            delete[] imagedata;
             fits_report_error(stderr, status);
             continue;
         }
 
-        // FITS data retrieved!!!
-
-        // FIXME: Adjust for Spitzer data.  As is, the quantiles are mis-calculated since it
-        // weighs on zeroed pixels.
-        // Check that pixel values are not NAN
-        /*
-        for (int iii=0; iii<numelements; iii++)
-            if (isnan(imagedata[iii]))
-            {
-                imagedata[iii] = 0;
-            }
-        */
-
-        // Set some default parameters (or only one for now)
         inverted = false;
 
         // Downsample the image if either axis is too large
-        if (width > DOWNSAMPLE_SIZE or height > DOWNSAMPLE_SIZE){
+        if (width > DOWNSAMPLE_SIZE || height > DOWNSAMPLE_SIZE) {
             if (width > height)
                 M = width / DOWNSAMPLE_SIZE;
             else
@@ -200,43 +154,32 @@ bool FitsImage::setup()
 
             // Begin downsampling
             int newW, newH;
-            downsample(&imagedata, width, height, M, &newW, &newH);
+            downsample(width, height, M, &newW, &newH);
             width = newW;
             height = newH;
             numelements = width * height;
         }
 
-        // Calculate the minimum and maximum pixel values
         calculateExtremals();
 
-        // Calcuate percentiles
         calculatePercentile(lowerPercentile, upperPercentile);
 
         // Initialize a working array
-        //renderdata = new float(numelements * sizeof(float));
-        renderdata = (float *) malloc(numelements * sizeof(float));
+        renderdata = new float[numelements];
         if (!renderdata)
         {
-            delete(imagedata);
+            delete[] imagedata;
             continue;
         }
 
-        // Calibrate Image
-        if ( !calibrateImage(LINEAR_STRETCH, vmin, vmax) )
+        if (!calibrateImage(LINEAR_STRETCH, vmin, vmax))
             continue;
 
         break;
-
-        // Found a good HDU
-        break;
     }
 
-    // Seems that no HDU was appropriate ...
     fits_close_file(fptr, &status);
-
-    // Call finishInitialization from base class
     finishInitialization();
-
     return true;
 }
 
@@ -294,30 +237,33 @@ bool FitsImage::verifyWCS()
 }
 
 
-void FitsImage::calculateExtremals()
+void
+FitsImage::calculateExtremals()
 {
-    int i;
-    // Determine min and max
-    for (i=0; i<numelements; i++)
+    minpixel = maxpixel = imagedata[0];
+
+    for (int i = 1; i < numelements; i++)
     {
         if (imagedata[i] < minpixel)
             minpixel = imagedata[i];
+
         if (imagedata[i] > maxpixel)
             maxpixel = imagedata[i];
     }
 }
 
 // Borrowed from Astrometry.net code
-void FitsImage::downsample(float** arr, int W, int H, int S, int* newW, int* newH)
+void FitsImage::downsample(int W, int H, int S, int* newW, int* newH)
 {
     int i, j, I, J;
 
-    *newW = (W + S-1) / S;
-    *newH = (H + S-1) / S;
+    *newW = (W + S - 1) / S;
+    *newH = (H + S - 1) / S;
+    float *new_imagedata = new float[(*newW) * (*newH)];
 
     // Average SxS blocks, placing the result in the bottom (newW * newH) first pixels.
-    for (j=0; j<*newH; j++) {
-        for (i=0; i<*newW; i++) {
+    for (j=0; j < *newH; j++) {
+        for (i=0; i < *newW; i++) {
             float sum = 0.0;
             int N = 0;
             for (J=0; J<S; J++) {
@@ -326,14 +272,17 @@ void FitsImage::downsample(float** arr, int W, int H, int S, int* newW, int* new
                 for (I=0; I<S; I++) {
                     if (i*S + I >= W)
                         break;
-                    sum += (*arr)[(j*S + J)*W + (i*S + I)];
+                    sum += imagedata[(j*S + J)*W + (i*S + I)];
                     N++;
                 }
             }
-            (*arr)[j * (*newW) + i] = sum / (float)N;
+
+            new_imagedata[j * (*newW) + i] = sum / (float) N;
         }
     }
-    *arr = (float *) realloc(*arr, (*newW) * (*newH) * sizeof(float));
+
+    delete[] imagedata;
+    imagedata = new_imagedata;
     downsampled = true;
 }
 
@@ -392,11 +341,10 @@ bool FitsImage::calculatePercentile(float lp, float up)
 bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
 {
     // Initialize a working array
-    renderdata= (float*) malloc(numelements*(sizeof(float)));
-    //renderdata = new float(numelements * sizeof(float));
+    renderdata = new float[numelements];
     if (!renderdata)
     {
-        delete(imagedata);
+        delete[] imagedata;
         return false;
     }
 
@@ -555,7 +503,7 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
     }
 
     // Free some memory
-    delete(renderdata);
+    delete[] renderdata;
 
     // Set pixmap
     pixmap = QPixmap(QPixmap::fromImage(*image, Qt::DiffuseDither));
@@ -722,7 +670,7 @@ void FitsImage::getCentroid(QPointF pos)
 
     // Prep data for centroid algorithm
     float *im=nullptr;
-    im = new float(9*(sizeof(float)));
+    im = new float[9];
     //(float *) malloc(9 * sizeof(float));
 
     // Copy intensity values to array
@@ -738,7 +686,7 @@ void FitsImage::getCentroid(QPointF pos)
 
     float xcen, ycen;
     PinpointWCSUtils::cen3x3(im, &xcen, &ycen);
-    delete(im);
+    delete[] im;
 
     // Map coordinate to image
     pos.setX(floor(pos.x())+0.5);
