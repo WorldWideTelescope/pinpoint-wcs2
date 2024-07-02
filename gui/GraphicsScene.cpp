@@ -27,28 +27,28 @@
 GraphicsScene::GraphicsScene(QPixmap *pix, bool ref, QObject *parent)
 : QGraphicsScene(parent)
 {
-	reference = ref;
-	movingItem = 0;
+    reference = ref;
+    movingItem = 0;
     qDebug()<<"Image size is "<<pix->width()<<" "<<pix->height();
     setSceneRect(0, 0, pix->width(), pix->height());
-	ptr_pixmap = addPixmap(*pix);
-	
-	// Compute the measure of the pixmap
-	measure = sqrt(pix->width() * pix->height());
-	
-	if (reference)
-		clickable = true;
-	else
-		clickable = false;
-	
-	// Create a container for all the markers
-	centralItem = new QGraphicsRectItem;
+    ptr_pixmap = addPixmap(*pix);
+
+    // Compute the measure of the pixmap
+    measure = sqrt(pix->width() * pix->height());
+
+    if (reference)
+        clickable = true;
+    else
+        clickable = false;
+
+    // Create a container for all the markers
+    centralItem = new QGraphicsRectItem;
 //	centralItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
-	centralItem->setRect(sceneRect());
-	centralItem->setFlag(QGraphicsItem::ItemIsMovable, false);
-	centralItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+    centralItem->setRect(sceneRect());
+    centralItem->setFlag(QGraphicsItem::ItemIsMovable, false);
+    centralItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
 //	centralItem->setFlag(QGraphicsItem::ItemIsFocusable, false);
-	addItem(centralItem);
+    addItem(centralItem);
 }
 
 
@@ -60,18 +60,18 @@ GraphicsScene::~GraphicsScene()
 
 
 void GraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
-{	
-	// Broadcast the position of the mouse
-	emit mousePositionChanged(event->scenePos());
-	QGraphicsScene::mouseMoveEvent(event);
+{
+    // Broadcast the position of the mouse
+    emit mousePositionChanged(event->scenePos());
+    QGraphicsScene::mouseMoveEvent(event);
 }
 
- 
+
 void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-	// Broadcast the event for the other GraphicsScene and the data model
-	if (clickable)
-		emit sceneDoubleClicked(this, event->scenePos());
+    // Broadcast the event for the other GraphicsScene and the data model
+    if (clickable)
+        emit sceneDoubleClicked(this, event->scenePos());
 }
 
 
@@ -86,18 +86,18 @@ void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         oldPos = movingItem->pos();
     }
 
-    clearSelection();    
+    clearSelection();
     QGraphicsScene::mousePressEvent(event);
 }
 
 
 void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-	if (movingItem != 0 && event->button() == Qt::LeftButton) {
+    if (movingItem != 0 && event->button() == Qt::LeftButton) {
         if (oldPos != movingItem->pos())
-			emit itemMoved(this, movingItem->pos(), oldPos);
+            emit itemMoved(this, movingItem->pos(), oldPos);
         movingItem = 0;
-	}
+    }
 
     QGraphicsScene::mouseReleaseEvent(event);
 }
@@ -105,104 +105,104 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void GraphicsScene::keyPressEvent(QKeyEvent *event)
 {
-	if (event->key() == Qt::Key_Space)
-	{
-		QList<QGraphicsItem*> itemlist = centralItem->childItems();
-		for (int i=0; i<itemlist.size(); i++)
-			itemlist.at(i)->setFlag(QGraphicsItem::ItemIsMovable, false);
-	}
-	QGraphicsScene::keyPressEvent(event);
+    if (event->key() == Qt::Key_Space)
+    {
+        QList<QGraphicsItem*> itemlist = centralItem->childItems();
+        for (int i=0; i<itemlist.size(); i++)
+            itemlist.at(i)->setFlag(QGraphicsItem::ItemIsMovable, false);
+    }
+    QGraphicsScene::keyPressEvent(event);
 }
 
 
 void GraphicsScene::keyReleaseEvent(QKeyEvent *event)
 {
-	if (event->key() == Qt::Key_Space)
-	{
-		QList<QGraphicsItem*> itemlist = centralItem->childItems();
-		for (int i=0; i<itemlist.size(); i++)
-			itemlist.at(i)->setFlag(QGraphicsItem::ItemIsMovable, true);
-	}
-	QGraphicsScene::keyReleaseEvent(event);
+    if (event->key() == Qt::Key_Space)
+    {
+        QList<QGraphicsItem*> itemlist = centralItem->childItems();
+        for (int i=0; i<itemlist.size(); i++)
+            itemlist.at(i)->setFlag(QGraphicsItem::ItemIsMovable, true);
+    }
+    QGraphicsScene::keyReleaseEvent(event);
 }
 
 
 void GraphicsScene::toggleClickable(bool sendSignal)
 {
-	// Toggle the clickable variable for both GraphicsScenes
-	clickable = !clickable;
-	if (sendSignal)
-		emit toggleNeighborScene(false);
+    // Toggle the clickable variable for both GraphicsScenes
+    clickable = !clickable;
+    if (sendSignal)
+        emit toggleNeighborScene(false);
 }
 
 
 void GraphicsScene::updatePixmap(QPixmap *pm)
 {
-	ptr_pixmap->setPixmap(*pm);
+    ptr_pixmap->setPixmap(*pm);
 }
 
 
 void GraphicsScene::signalItemMoved(CoordinateMarker *m, QPointF oldPos)
 {
-	// Broadcast the item moved and its old position
-	emit itemMoved(this, m->scenePos(), oldPos);
+    // Broadcast the item moved and its old position
+    emit itemMoved(this, m->scenePos(), oldPos);
 }
 
 
 float GraphicsScene::computeRadii()
-{	
-	// Use the measure and zoom factor to determine the radius in a
-	// manner that is consistent with the full range of image dimensions
-	float radius = qobject_cast<GraphicsView*> (views().at(0))->scaling();	
-	qDebug() << "Radius: " << radius;
-	return radius;
+{
+    // Use the measure and zoom factor to determine the radius in a
+    // manner that is consistent with the full range of image dimensions
+    float radius = qobject_cast<GraphicsView*> (views().at(0))->scaling();
+    qDebug() << "Radius: " << radius;
+    return radius;
 }
 
 
 void GraphicsScene::findSelectedItem()
 {
-	// Determine the selected item
-	if (selectedItems().isEmpty())
-	{
-		emit clearCorrespondingSelection();
-		return;
-	}
-	CoordinateMarker *item = qgraphicsitem_cast<CoordinateMarker *>(selectedItems()[0]);
-	emit currentSelection(item->index->row());
+    // Determine the selected item
+    if (selectedItems().isEmpty())
+    {
+        emit clearCorrespondingSelection();
+        return;
+    }
+    CoordinateMarker *item = qgraphicsitem_cast<CoordinateMarker *>(selectedItems()[0]);
+    emit currentSelection(item->index->row());
 }
 
 
 void GraphicsScene::matchSelectedItem(int row)
 {
-	// Check if corresponding marker is already selected
-	if (!selectedItems().isEmpty())
-	{
-		CoordinateMarker *item = qgraphicsitem_cast<CoordinateMarker*>(selectedItems()[0]);
-		if (item->index->row() == row)
-			return;
-	}
-	
-	// Clear selection
-	clearSelection();
-	
-	// Search for the corresponding marker
-	if (items().isEmpty())
-		return;
-	QList<QGraphicsItem*> markers = centralItem->childItems();
-	for (int i = 0; i < markers.size(); ++i)
-	{
-		CoordinateMarker *marker = qgraphicsitem_cast<CoordinateMarker*>(markers.at(i));
-		if (marker->index->row() == row)
-			marker->setSelected(true);
-	}
+    // Check if corresponding marker is already selected
+    if (!selectedItems().isEmpty())
+    {
+        CoordinateMarker *item = qgraphicsitem_cast<CoordinateMarker*>(selectedItems()[0]);
+        if (item->index->row() == row)
+            return;
+    }
+
+    // Clear selection
+    clearSelection();
+
+    // Search for the corresponding marker
+    if (items().isEmpty())
+        return;
+    QList<QGraphicsItem*> markers = centralItem->childItems();
+    for (int i = 0; i < markers.size(); ++i)
+    {
+        CoordinateMarker *marker = qgraphicsitem_cast<CoordinateMarker*>(markers.at(i));
+        if (marker->index->row() == row)
+            marker->setSelected(true);
+    }
 }
 
 
 void GraphicsScene::selectedItemPos()
-{	
-	// Get selected item if any
-	if (selectedItems().isEmpty())
-		return;
-	CoordinateMarker *item = qgraphicsitem_cast<CoordinateMarker*>(selectedItems()[0]);
-	emit itemPos(item->pos());
+{
+    // Get selected item if any
+    if (selectedItems().isEmpty())
+        return;
+    CoordinateMarker *item = qgraphicsitem_cast<CoordinateMarker*>(selectedItems()[0]);
+    emit itemPos(item->pos());
 }
