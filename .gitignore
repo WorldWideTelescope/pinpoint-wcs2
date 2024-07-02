@@ -1,0 +1,5 @@
+CMakeCache.txt
+CMakeFiles/
+Makefile
+PinpointWCS_autogen/
+cmake_install.cmake
