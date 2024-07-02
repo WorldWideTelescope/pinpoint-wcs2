@@ -127,14 +127,15 @@ QVariant CoordinateMarker::itemChange(GraphicsItemChange change, const QVariant 
         s->itemChange(this);
     }
      */
-    if (change == QGraphicsItem::ItemSelectedChange)
+
+    if (change == QGraphicsItem::ItemSelectedChange) {
         if (value == true) {
             setFlag(ItemIsMovable, true);
-        }
-        else
-        {
+        } else {
             setFlag(ItemIsMovable, false);
         }
+    }
+
     return QGraphicsItem::itemChange(change, value);
 }
 

@@ -118,7 +118,6 @@ DS9Thread::run()
         free(infos);
 
         // There exists at least one connection
-        int got;
         char *nombres[NXPA];
         char *msgs[NXPA];
 
@@ -133,23 +132,23 @@ DS9Thread::run()
         strcpy(orig, s1.toStdString().c_str());
         strcpy(exported, s2.toStdString().c_str());
 
-        // Control DS9 baby!!!
-        got = XPASet(xpa, method, orig, nullptr, nullptr, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, (char *) "frame new", (char *) "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, exported, (char *) "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, (char *) "tile", (char *) "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, (char *) "match frames wcs", (char *) "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, (char *) "mode crosshair", (char *) "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, (char *) "lock crosshair wcs", (char *) "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, (char *) "zoom to fit", (char *) "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, (char *) "frame next", (char *) "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, (char *) "zoom to fit", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        // Control DS9 baby!!! Ignoring return value.s
+        XPASet(xpa, method, orig, nullptr, nullptr, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, (char *) "frame new", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, exported, (char *) "", NULL, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, (char *) "tile", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, (char *) "match frames wcs", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, (char *) "mode crosshair", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, (char *) "lock crosshair wcs", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, (char *) "zoom to fit", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, (char *) "frame next", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        XPASet(xpa, method, (char *) "zoom to fit", (char *) "", NULL, 0, nombres, msgs, NXPA);
 
         // Close the XPA persistent connection
         XPAClose(xpa);
-        free(orig);
-        free(exported);
-        free(method);
+        delete[] orig;
+        delete[] exported;
+        delete[] method;
     }
     else
     {

@@ -100,7 +100,7 @@ void ExportWCS::exportFITS()
 
     // Allocate memory for the entire image
     imagedata[0] = (unsigned short *) malloc(naxes[0] * naxes[1] * sizeof(unsigned short));
-    if (imagedata == NULL)
+    if (imagedata[0] == NULL)
     {
         fitsexport = false;
         emit exportResults(fitsexport);

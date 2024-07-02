@@ -115,7 +115,7 @@ bool FitsImage::setup()
         if (naxis != 2)
         {
             QMessageBox msgBox;
-            msgBox.setText("The document has been modified.");
+            msgBox.setText("FITS NAXIS is not 2");
             msgBox.exec();
             continue;
         }
