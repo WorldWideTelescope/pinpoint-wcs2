@@ -21,42 +21,42 @@
 #include "PPWcsImage.h"
 
 PPWcsImage::PPWcsImage()
-{	
-	qDebug() << "Initializing PPWcsImage object ...";
-	
-	// Initialize attributes common to all base classes
-	wcs = NULL;
-	M = 1;
+{
+    qDebug() << "Initializing PPWcsImage object ...";
+
+    // Initialize attributes common to all base classes
+    wcs = NULL;
+    M = 1;
 }
 
 PPWcsImage::~PPWcsImage()
 {
-	free(world);
+    free(world);
 }
 
 void PPWcsImage::finishInitialization()
 {
-	world = (double*) malloc( 2*sizeof(double) );
+    world = (double*) malloc( 2*sizeof(double) );
 }
 
 
 double* PPWcsImage::pix2sky(QPointF pos)
 {
-	if (!wcs)
-		return world;
-	
-	// Get unbinned pixel
-	float xf, yf;
-	
-	xf = M*(pos.x()-1)+2-0.5;
-	yf = (M*(pos.y()-1))-0.5;
+    if (!wcs)
+        return world;
 
-	pix2wcs(wcs, xf, yf, &world[0], &world[1]);
-	
-	// Check if coordinates are galatic
-	if (wcs->syswcs != WCS_J2000)
-		wcscon(wcs->syswcs, WCS_J2000, wcs->equinox, wcs->eqout, &world[0], &world[1], wcs->epoch);
-	
-	// Perhaps the transformationStatus needs to be checked ...
-	return world;
+    // Get unbinned pixel
+    float xf, yf;
+
+    xf = M*(pos.x()-1)+2-0.5;
+    yf = (M*(pos.y()-1))-0.5;
+
+    pix2wcs(wcs, xf, yf, &world[0], &world[1]);
+
+    // Check if coordinates are galatic
+    if (wcs->syswcs != WCS_J2000)
+        wcscon(wcs->syswcs, WCS_J2000, wcs->equinox, wcs->eqout, &world[0], &world[1], wcs->epoch);
+
+    // Perhaps the transformationStatus needs to be checked ...
+    return world;
 }
