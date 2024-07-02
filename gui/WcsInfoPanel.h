@@ -22,8 +22,8 @@
 
 #include <QFrame>
 #include "ui_WcsInfoPanel.h"
-#include "wcs.h"
-//#include "fitsfile.h"
+#include <libwcs/wcs.h>
+#include <libwcs/fitsfile.h>
 
 
 class WcsInfoPanel : public QFrame

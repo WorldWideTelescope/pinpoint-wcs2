@@ -264,7 +264,7 @@ void ComputeWCS::computeSums(int numPoints)
         xvector += point1.x() * basis;  //Multiply by the basis
 		yvector += point1.y() * basis;
        qDebug() <<"Matrix in compute sums is: ";
-       std::cout<<Eigen::matrix<<endl;
+       std::cout<<matrix<<endl;
        //qDebug() << xvector[ii];
         }
 

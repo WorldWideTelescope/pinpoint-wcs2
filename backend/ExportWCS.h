@@ -24,7 +24,7 @@
 #include <QPixmap>
 #include <QString>
 #include <QFileDialog>
-#include "wcs.h"
+#include <libwcs/wcs.h>
 #include "EpoImage.h"
 #include "ComputeWCS.h"
 

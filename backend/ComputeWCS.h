@@ -24,7 +24,7 @@
 #include <QPointF>
 #include <QPair>
 #include <Eigen/Core>
-#include "wcs.h"
+#include <libwcs/wcs.h>
 #include <QObject>
 
 #define _USE_MATH_DEFINES

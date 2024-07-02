@@ -17,15 +17,21 @@ find_package(CFITSIO REQUIRED)
 
 find_package(WCSLIB REQUIRED)
 
+# Yes, libwcs and wcslib are different things, and we currently need both of
+# them.
+find_package(LIBWCS REQUIRED)
+
 find_package(Eigen3 REQUIRED)
 
 find_package(XPA REQUIRED)
 
 include_directories(
-	${CMAKE_SOURCE_DIR}/backend
-	${CMAKE_SOURCE_DIR}/gui
+    ${CMAKE_SOURCE_DIR}/backend
+    ${CMAKE_SOURCE_DIR}/gui
+    ${CMAKE_SOURCE_DIR}
     ${EIGEN3_INCLUDE_DIR}
     ${WCSLIB_INCLUDES}
+    ${LIBWCS_INCLUDE_DIR}
     ${CFITSIO_INCLUDE_DIR}
     ${XPA_INCLUDE_DIR}
 )
@@ -93,7 +99,7 @@ add_executable(
 
 target_link_libraries(
     PinpointWCS
-	PUBLIC
-	Qt5::Network
-	Qt5::Widgets
+    PUBLIC
+    Qt5::Network
+    Qt5::Widgets
 )
