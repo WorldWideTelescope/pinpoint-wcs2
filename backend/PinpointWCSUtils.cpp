@@ -31,7 +31,6 @@ namespace PinpointWCSUtils {
 
 	float computeQuantile(float *arr, long arraysize, double q)
 	{
-//		std::cout << "Determining Quantile ...\n";
 		long length = arraysize;
 		float dd;
 		double dq;
@@ -110,16 +109,9 @@ namespace PinpointWCSUtils {
 			// Deallocate s1 and s2
 			free(s1);
 			free(s2);
-
-//			std::cout << "dd = " << dd << "\n";
-//			std::cout << "length = " << length << "\n";
-//			std::cout << "dq = " << dq << "\n";
-//			std::cout << "iter = " << iter << "\n\n";
-
 			iter++;
-		}  // while
-
-	} // computeQuantile function
+		}
+	}
 
 
 	bool cen3(float f0, float f1, float f2, float *xcen)
@@ -136,7 +128,7 @@ namespace PinpointWCSUtils {
 			return false;
 
 		return true;
-	} // cen3 function
+	}
 
 
 	bool cen3x3(float *image, float *xcen, float *ycen)
@@ -214,7 +206,6 @@ namespace PinpointWCSUtils {
 		std::cout << "CUNITn:\t" << wcs->units << std::endl;
 		std::cout << "RADECSYS:\t" << wcs->radecsys << std::endl;
 		std::cout << " ---------- ---------- ---------- ---------- ---------- ---------- ----------" << std::endl;
-
 	} // dumpWCS
 
 }  // namespace

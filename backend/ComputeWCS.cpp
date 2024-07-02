@@ -52,12 +52,13 @@ ComputeWCS::ComputeWCS(QList<QPointF> *ref, QList<QPointF> *epo, struct WorldCoo
     // Vector to be used to compute offsets
     v << 1000.0, 0;
 }
-//Constructor
-ComputeWCS::~ComputeWCS()
-{}
 
-//simply initialize the Matrix Vectors
-void ComputeWCS::initializeMatrixVectors()
+
+ComputeWCS::~ComputeWCS() {}
+
+
+void
+ComputeWCS::initializeMatrixVectors()
 {
     int size = 3;
     basis = VectorXd::Zero(size);
@@ -68,11 +69,12 @@ void ComputeWCS::initializeMatrixVectors()
     ycoeff = VectorXd::Zero(size);
 }
 
-//ComputeTargetWCS
-void ComputeWCS::computeTargetWCS()
+
+void
+ComputeWCS::computeTargetWCS()
 {
-    // Check if enough points have been selected
     int numPoints;
+
     if (epoCoords->size() >= 3)
     {
         // Determine the number of points to use
@@ -84,7 +86,7 @@ void ComputeWCS::computeTargetWCS()
                 emit nowcs();
                 return;
             }
-            numPoints = refCoords->size()-1;
+            numPoints = refCoords->size() - 1;
         }
         else
             numPoints = refCoords->size();
@@ -98,28 +100,20 @@ void ComputeWCS::computeTargetWCS()
         // Compute residuals
         computeResiduals(numPoints);
 
-                // Bin the reference pixel not sure why?
-                double xrefpix = (referenceWCS->xrefpix - 1) / M + 1;
-                double yrefpix = (referenceWCS->yrefpix - 1) / M + 1;
-                //double xrefpix = M*(referenceWCS->xrefpix-1)+1;
-                //double yrefpix = M*(referenceWCS->yrefpix-1)+1;
+        // Bin the reference pixel not sure why?
+        double xrefpix = (referenceWCS->xrefpix - 1) / M + 1;
+        double yrefpix = (referenceWCS->yrefpix - 1) / M + 1;
 
         // Declare the CRPIX for the EPO image to be the center pixel
-                crpix = fitsToEpo(xrefpix, yrefpix);
-                //crpix = fitsToEpo(referenceWCS->xrefpix, referenceWCS->yrefpix);
-                std::cout<<"EPO REFERENCE CENTER: "<<crpix<<" :fin"<<std::endl;
+        crpix = fitsToEpo(xrefpix, yrefpix);
+
         // Determine corresponding pixel in the FITS image in QGraphicsScene space
         Vector2d ref0;
-                //ref0 << xrefpix, yrefpix;
-                ref0 << referenceWCS->xrefpix, referenceWCS->yrefpix;
-        std::cout << "FITS REFERENCE "<< "ref0:\t" << ref0 << "fin "<< std::endl;
+        ref0 << referenceWCS->xrefpix, referenceWCS->yrefpix;
 
         // Transform from QGraphicsScene pixels to FITS pixels
         ref0 = gsPix2fitsPix(ref0);
-            std::cout << "FITS REFERENCE in FITS pixels"<< "ref0:\t" << ref0 << " ;fin "<<std::endl;
-                // ref0 is unbinned right now
         Vector2d xieta_0 = xi_eta(ref0);
-        std::cout << "xieta_0:\t" << xieta_0 << std::endl;
 
         // Determine the celestial coordinates for ref0
         pix2wcs(referenceWCS, ref0[0], ref0[1], &crval[0], &crval[1]);
@@ -131,23 +125,21 @@ void ComputeWCS::computeTargetWCS()
 
         // Compute offset in x direction
         Vector2d fitscrpix1 = epoToFits(crpix + v);
-         std::cout<<"Offset of FITS and EPO: "<<fitscrpix1<<endl;
-                // Unbin the pixel
-                Vector2d blah1;
-                blah1 << ( M * ( fitscrpix1[0] - 1 ) + 1 ), ( M * ( fitscrpix1[1] - 1 ) + 1 );
-                Vector2d ref_x = gsPix2fitsPix( blah1 );
-                //Vector2d ref_x = gsPix2fitsPix( epoToFits(crpix + v) );
+
+        // Unbin the pixel
+        Vector2d blah1;
+        blah1 << (M * (fitscrpix1[0] - 1) + 1), (M * (fitscrpix1[1] - 1) + 1);
+        Vector2d ref_x = gsPix2fitsPix(blah1);
         Vector2d xieta_x = xi_eta(ref_x);
 
         // Compute offset in y direction
-         Vector2d fitscrpix2 = epoToFits(crpix + flip*v);
-         std::cout<<"Offset of FITS and EPO: "<<fitscrpix2<<" fin"<<endl;
-                // Unbin the pixel
-                Vector2d blah2;
-                blah2 << ( M * ( fitscrpix2[0] - 1 ) + 1 ), ( M * ( fitscrpix2[1] - 1 ) + 1 );
-                //Vector2d ref_y = gsPix2fitsPix( epoToFits(crpix + flip*v) );
-                Vector2d ref_y = gsPix2fitsPix( blah2 );
-                Vector2d xieta_y = xi_eta(ref_y);
+         Vector2d fitscrpix2 = epoToFits(crpix + flip * v);
+
+        // Unbin the pixel
+        Vector2d blah2;
+        blah2 << (M * (fitscrpix2[0] - 1) + 1), (M * (fitscrpix2[1] - 1) + 1);
+        Vector2d ref_y = gsPix2fitsPix(blah2);
+        Vector2d xieta_y = xi_eta(ref_y);
 
         // Compute the cd matrix
         cdmatrix(0) = (xieta_x(0) - xieta_0(0)) / v(0);
@@ -156,19 +148,13 @@ void ComputeWCS::computeTargetWCS()
         cdmatrix(3) = (xieta_0(1) - xieta_y(1)) / v(0);
 
         // Calculate the scale in units of arcseconds
-    //	scale = 3600 * sqrt(pow(xieta_y(0) - xieta_0(0), 2) + pow(xieta_y(1) - xieta_0(1), 2)) / v(0);
         scale = sqrt(pow(xieta_y(0) - xieta_0(0), 2) + pow(xieta_y(1) - xieta_0(1), 2)) / v(0);
 
         // Calculate the orientation
         orientation = atan2(xieta_y(0) - xieta_0(0), -(xieta_y(1) - xieta_0(1))) * (180. / M_PI);
 
-        // TODO: Store the coordinates for the center of the image
-        //is this not done in the pix2wcs?
-
         // EPO WCS calculated!!
         epoWCS = true;
-
-        // Broadcast computation
         emit wcs();
         return;
     }
@@ -224,9 +210,6 @@ ComputeWCS::initTargetWCS()
     pix2wcs(targetWCS, center_x, center_y, &centerRA, &centerDec);
     center_x = 0.5 * height;
     center_y = 0.5 * width;
-
-    std::cout << "Dimensions\t" << center_x << "\t" << center_y << std::endl;
-    std::cout << "Center coords\t" << centerRA <<"\t"<< centerDec << std::endl;
     return targetWCS;
 }
 
