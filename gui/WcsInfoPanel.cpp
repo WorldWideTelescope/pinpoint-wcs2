@@ -28,7 +28,6 @@ WcsInfoPanel::WcsInfoPanel(bool ref, QWidget *parent)
 : QFrame(parent)
 {
     // Set up user interface from the Designer file
-    qDebug() <<  "Initializing WcsInfoPanel ...";
     ui.setupUi(this);
 
     // Set up frame style
@@ -167,7 +166,6 @@ void WcsInfoPanel::clear()
 void WcsInfoPanel::parentResized(QSize sz)
 {
     resize(sz.width(), 60);
-    qDebug() << sz.width();
     float fontsize = 1./80. * (sz.width() - 390) + 7;
     QFont font;
     font.setPointSize(fontsize);

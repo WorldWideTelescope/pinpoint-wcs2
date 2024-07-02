@@ -26,7 +26,6 @@ AboutDialog::AboutDialog(QWidget *parent)
 : QDialog(parent, Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint)
 {
     // Set up user interface from the Designer file
-    qDebug() << "Initializing About Dialog ...";
     ui.setupUi(this);
 
     // Get version and revision info from version.h

@@ -24,7 +24,6 @@ CoordinateTableDialog::CoordinateTableDialog(QWidget *parent)
 : QDialog(parent)
 {
     // Set up user interface from the Designer file
-    qDebug() << "Initializing CoordinateTableDialog ...";
     ui = Ui::CoordinateTableDialog();
     ui.setupUi(this);
 /*

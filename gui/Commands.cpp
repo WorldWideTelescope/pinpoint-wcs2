@@ -139,7 +139,6 @@ void AddCommand::undo()
 MoveCommand::MoveCommand(GraphicsScene *s, const QVariant &newValue, const QVariant &oldValue, CoordinateModel *model, QModelIndex *index)
 : QUndoCommand()
 {
-    qDebug() << "MoveCommand";
     newPos = newValue.toPointF();
     oldPos = oldValue.toPointF();
     scene = s;
@@ -172,7 +171,6 @@ MoveCommand::MoveCommand(GraphicsScene *s, const QVariant &newValue, const QVari
 
 bool MoveCommand::mergeWith(const QUndoCommand *command)
 {
-    qDebug() << "mergeWith";
     const MoveCommand *moveCommand = static_cast<const MoveCommand*>(command);
     CoordinateMarker *item = moveCommand->marker;
 
@@ -185,7 +183,6 @@ bool MoveCommand::mergeWith(const QUndoCommand *command)
 
 void MoveCommand::undo()
 {
-    qDebug() << "MoveCommand undo()";
     // Initialize some indices
     QModelIndex index1;
     QModelIndex index2;
@@ -220,7 +217,6 @@ void MoveCommand::undo()
 
 void MoveCommand::redo()
 {
-    qDebug() << "MoveCommand redo()";
     // Initialize some variables
     QModelIndex index1;
     QModelIndex index2;

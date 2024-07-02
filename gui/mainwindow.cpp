@@ -71,8 +71,6 @@ MainWindow::~MainWindow() {}
 
 bool MainWindow::teardownWorkspace()
 {
-    qDebug() << "Attempting to teardown workspace ...";
-
     // Reconnect dropLabels to signal
     connect(ui.dropLabel_1, SIGNAL(readyForImport()), this, SLOT(setupImages()));
     connect(ui.dropLabel_2, SIGNAL(readyForImport()), this, SLOT(setupImages()));
@@ -81,28 +79,19 @@ bool MainWindow::teardownWorkspace()
     ui.stackedWidget_1->setCurrentIndex(0);
     ui.stackedWidget_2->setCurrentIndex(0);
 
-    qDebug()<<"Disconnecting resizing signals";
     // Disconnect some signals -- used for resizing panels
     disconnect(ui.graphicsView_1, SIGNAL(objectResized(QSize)), fitsWcsInfoPanel, SLOT(parentResized(QSize)));
-    qDebug()<<"signal 1";
     disconnect(ui.graphicsView_2, SIGNAL(objectResized(QSize)), epoWcsInfoPanel, SLOT(parentResized(QSize)));
-     qDebug()<<"signal 1";
     disconnect(ui.graphicsView_1, SIGNAL(objectResized(QSize)), fitsCoordPanel, SLOT(parentResized(QSize)));
-     qDebug()<<"signal 1";
     disconnect(ui.graphicsView_2, SIGNAL(objectResized(QSize)), epoCoordPanel, SLOT(parentResized(QSize)));
-     qDebug()<<"signal 1";
     disconnect(ui.graphicsView_1, SIGNAL(objectResized(QSize)), this, SLOT(updateCoordPanelProperties()));
-     qDebug()<<"signal 1";
     disconnect(ui.graphicsView_2, SIGNAL(objectResized(QSize)), this, SLOT(updateCoordPanelProperties()));
-     qDebug()<<"signal 1";
     disconnect(ui.graphicsView_1, SIGNAL(objectResized(QSize)), fitsToolbar, SLOT(parentResized(QSize)));
 
-    qDebug()<<"Disconnecting updating signals";
     // Disconnect more signals -- used for updating info on panels
     disconnect(fitsScene, SIGNAL(mousePositionChanged(QPointF)), fitsCoordPanel, SLOT(updateCoordinates(QPointF)));
     disconnect(epoScene, SIGNAL(mousePositionChanged(QPointF)), epoCoordPanel, SLOT(updateCoordinates(QPointF)));
 
-    qDebug()<<"Disconnecting graphic Scene signals";
     // Disconnect yet more signals -- para comunicación entre los GraphicsScenes
     disconnect(fitsScene, SIGNAL(sceneDoubleClicked(GraphicsScene*, QPointF)), dataModel, SLOT(setData(GraphicsScene*, QPointF)));
     disconnect(epoScene, SIGNAL(sceneDoubleClicked(GraphicsScene*, QPointF)), dataModel, SLOT(setData(GraphicsScene*, QPointF)));
@@ -114,7 +103,6 @@ bool MainWindow::teardownWorkspace()
     disconnect(epoScene, SIGNAL(itemMoved(GraphicsScene*, QPointF, QPointF)), dataModel, SLOT(updateData(GraphicsScene*, QPointF, QPointF)));
     disconnect(tableDelegate, SIGNAL(itemMoved(GraphicsScene*, QPointF, QPointF, QModelIndex*)), dataModel, SLOT(updateData(GraphicsScene*, QPointF, QPointF, QModelIndex*)));
 
-    qDebug()<<"Disconnecting menu and slider signals";
     // Disconnect even more signals -- Menu items and Sliders for FitsImage and GraphicsScene
     disconnect(stretchActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(stretch(QAction*)));
     disconnect(ui.actionInvert, SIGNAL(triggered(bool)), fitsImage, SLOT(invert()));
@@ -123,7 +111,6 @@ bool MainWindow::teardownWorkspace()
     disconnect(fitsImage, SIGNAL(pixmapChanged(QPixmap*)), fitsScene, SLOT(updatePixmap(QPixmap*)));
     disconnect(epoImage, SIGNAL(pixmapChanged(QPixmap*)), epoScene, SLOT(updatePixmap(QPixmap*)));
 
-    qDebug()<<"Disconnecting WCS signals";
     // Disconnect señales for the WCS format
     disconnect(ui.actionDegrees, SIGNAL(toggled(bool)), fitsCoordPanel, SLOT(setWcsFormat(bool)));
     disconnect(ui.actionDegrees, SIGNAL(toggled(bool)), epoCoordPanel, SLOT(setWcsFormat(bool)));
@@ -133,7 +120,6 @@ bool MainWindow::teardownWorkspace()
     disconnect(computewcs, SIGNAL(wcs()), this, SLOT(enableExport()));
     disconnect(computewcs, SIGNAL(nowcs()), this, SLOT(enableExport()));
 
-    qDebug()<<"Disconnecting export signals";
     // Disconnect signals -- export options
     disconnect(ui.actionFITS_Image, SIGNAL(triggered(bool)), exportwcs, SLOT(exportFITS()));
     disconnect(ui.actionAVM, SIGNAL(triggered(bool)), exportwcs, SLOT(exportAVMClean()));
@@ -143,7 +129,6 @@ bool MainWindow::teardownWorkspace()
     // And more signals ...
     disconnect(ui.actionCoordinate_Table, SIGNAL(triggered(bool)), coordinateTableDialog, SLOT(toggle()));
 
-    qDebug()<<"Disconnecting mouse signals";
     // Mouse dependent rotation menu items
     disconnect(ui.graphicsView_1, SIGNAL(mouseEnterEvent(GraphicsView*)), this, SLOT(rotateMenuItems(GraphicsView*)));
     disconnect(ui.graphicsView_2, SIGNAL(mouseEnterEvent(GraphicsView*)), this, SLOT(rotateMenuItems(GraphicsView*)));
@@ -156,7 +141,6 @@ bool MainWindow::teardownWorkspace()
     disconnect(fitsScene, SIGNAL(clearCorrespondingSelection()), epoScene, SLOT(clearSelection()));
     disconnect(epoScene, SIGNAL(clearCorrespondingSelection()), fitsScene, SLOT(clearSelection()));
 
-    qDebug()<<"Disconnecting exportresults & centroid signals";
     // Exporting signals and slots
     disconnect(exportwcs, SIGNAL(exportResults(bool)), this, SLOT(promptMessage(bool)));
 
@@ -166,7 +150,6 @@ bool MainWindow::teardownWorkspace()
     disconnect(fitsScene, SIGNAL(itemPos(QPointF)), fitsImage, SLOT(getCentroid(QPointF)));
     disconnect(fitsImage, SIGNAL(centroid(QPointF)), this, SLOT(updateWithCentroid(QPointF)));
 
-    qDebug()<<"Disable menus";
     // Disable View Menu items
     ui.actionWCSInfo->setEnabled(false);
     ui.actionCoordinates->setEnabled(false);
@@ -190,7 +173,6 @@ bool MainWindow::teardownWorkspace()
     ui.menuEdit->removeAction(redoAction);
     ui.menuEdit->removeAction(undoAction);
 
-    qDebug()<<"Delete objects";
     // Delete some objects last
     delete undoAction;
     delete redoAction;
@@ -200,35 +182,34 @@ bool MainWindow::teardownWorkspace()
     delete fitsToolbar;
     delete epoImage;
     delete epoScene;
-     qDebug()<<"fitsImage";
+
     if(fitsImage)
         delete fitsImage;
-     qDebug()<<"fitsScene";
+
     if(fitsScene != nullptr)
         delete fitsScene;
-    qDebug()<<"fitsCoordPanel";
+
     if(fitsCoordPanel)
         delete fitsCoordPanel;
-    qDebug()<<"fitsCoordPanel";
+
     if(epoCoordPanel)
         delete epoCoordPanel;
-    qDebug()<<"fitsCoordPanel";
+
     if(tableDelegate)
         delete tableDelegate;
-    qDebug()<<"fitsCoordPanel";
+
     if(coordinateTableDialog)
         delete coordinateTableDialog;
-    qDebug()<<"fitsCoordPanel";
+
     if(computewcs)
         delete computewcs;
-    qDebug()<<"fitsCoordPanel";
+
     if(exportwcs)
         delete exportwcs;
-    qDebug()<<"fitsCoordPanel";
+
     if(msg)
         delete msg;
 
-    qDebug()<<"teardown machines";
     teardownWcsInfoPanelMachine();
     teardownImageAdjustmentMachine();
     teardownCoordPanelMachine();
@@ -246,7 +227,6 @@ bool MainWindow::teardownWorkspace()
 
 bool MainWindow::setupImages()
 {
-    qDebug() << "Attempting to set up images ...";
     if (ui.dropLabel_1->ready and ui.dropLabel_2->ready)
     {
         // Call loadEPOImage and loadFITSImage
@@ -261,8 +241,6 @@ bool MainWindow::setupImages()
 
 bool MainWindow::setupWorkspace()
 {
-    qDebug() << "Setting up workspace ...";
-
     // Disconnect dropLabels from signal
     disconnect(ui.dropLabel_1, SIGNAL(readyForImport()), this, SLOT(setupImages()));
     disconnect(ui.dropLabel_2, SIGNAL(readyForImport()), this, SLOT(setupImages()));
@@ -472,7 +450,6 @@ void MainWindow::stretch(QAction *action)
 
 bool MainWindow::loadEpoImage(QString &filename)
 {
-    qDebug() << "Loading EPO image ...";
     epoImage = new EpoImage(filename);
     // TODO: Make same as fitsScene argument ...
     epoScene = new GraphicsScene(epoImage->pixmap, false);
@@ -483,7 +460,6 @@ bool MainWindow::loadEpoImage(QString &filename)
 
 bool MainWindow::startFITSThread(QString &filename)
 {
-    qDebug() << "Initializing FITS thread ...";
     //QAbstractEventDispatcher eventDispatch(this);
     fitsThread = new FITSThread();
     connect(fitsThread, SIGNAL(finished()), this, SLOT(loadFITSImage()));
@@ -499,7 +475,6 @@ bool MainWindow::startFITSThread(QString &filename)
 
 bool MainWindow::loadFITSImage()
 {
-    qDebug() << "Loading FITS Image ...";
     // Load the pixmap to the scene
     // TODO: Make epoScene the same as this ...
     if(fitsImage->pixmap.isNull()  == true){ //pixmap failed to set
@@ -855,7 +830,6 @@ void MainWindow::promptMessage(bool status)
 void MainWindow::reportBadFits(bool status){
     msg2->badFITS();
     msg2->show();
-    qDebug()<<"Where's my message box?";
 }
 
 void MainWindow::predictEpoPoint()
@@ -890,7 +864,6 @@ void MainWindow::openDS9()
 
 void MainWindow::closeDS9()
 {
-    qDebug() << "Closing DS9 ...";
     delete ds9thread;
 }
 
@@ -913,7 +886,6 @@ void MainWindow::getHelp()
 
 void MainWindow::testSlot()
 {
-    qDebug() << "Test Slot ";
 }
 
 void MainWindow::testI()

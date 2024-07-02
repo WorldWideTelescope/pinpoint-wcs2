@@ -59,6 +59,5 @@ void MessageBox::setStatus(bool status)
 void MessageBox::closeEvent(QCloseEvent *event)
 {
     QMessageBox::closeEvent(event);
-    qDebug() << "closeEvent";
     this->~MessageBox();
 }

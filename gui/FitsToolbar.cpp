@@ -26,7 +26,6 @@ FitsToolbar::FitsToolbar(QWidget *parent)
 : QFrame(parent)
 {
     // Set up user interface from the Designer file
-    qDebug() << "Initializing FitsToolbar ...";
     ui.setupUi(this);
 
     // Set up frame style
@@ -58,7 +57,6 @@ void FitsToolbar::setExtremals(float min, float max)
 {
     minimum = min;
     maximum = max;
-    qDebug() << "Min " << minimum << "Max " << maximum;
 }
 
 void FitsToolbar::setSliderValues(float vmin, float vmax)
@@ -76,7 +74,6 @@ void FitsToolbar::vminSliderReleased()
 {
     float value;
     value = (ui.vminSlider->value() * (maximum - minimum) / 1000. + minimum);
-    qDebug() << value;
     emit updateVmin(value);
 }
 
@@ -84,7 +81,6 @@ void FitsToolbar::vmaxSliderReleased()
 {
     float value;
     value = (ui.vmaxSlider->value() * (maximum - minimum) / 1000. + minimum);
-    qDebug() << value;
     emit updateVmax(value);
 }
 

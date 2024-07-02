@@ -27,7 +27,6 @@
 CoordinateMarker::CoordinateMarker(QModelIndex &idx, QGraphicsItem *parent)
 : QGraphicsItem(parent)
 {
-    qDebug() << "Initializing CoordinateMarker object ...";
     setZValue(2);
     setRadius();
     setOpacity(100.0);
