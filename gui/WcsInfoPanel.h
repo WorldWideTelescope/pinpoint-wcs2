@@ -27,25 +27,25 @@
 
 
 class WcsInfoPanel : public QFrame
-	{
-		Q_OBJECT
-		
-	public:
+    {
+        Q_OBJECT
+
+    public:
         WcsInfoPanel(bool ref, QWidget *parent = nullptr);
         ~WcsInfoPanel() override;
-        void loadWCS(struct WorldCoor* wcs, double rms_x = 0.0, double rms_y = NULL);
-		void clear();
-		
-	public slots:
-		void parentResized(QSize sz);
-		
-	private:
-		// Attributes
-		Ui::WcsInfoPanel ui;
-		bool reference;
-		
-		// Methods
-		void updateFontSize(QFont font);
-	};
+        void loadWCS(struct WorldCoor* wcs, double rms_x = 0.0, double rms_y = 0.0);
+        void clear();
+
+    public slots:
+        void parentResized(QSize sz);
+
+    private:
+        // Attributes
+        Ui::WcsInfoPanel ui;
+        bool reference;
+
+        // Methods
+        void updateFontSize(QFont font);
+    };
 
 #endif
