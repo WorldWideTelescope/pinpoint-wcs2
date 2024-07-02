@@ -34,10 +34,10 @@ class DS9Thread : public QThread {
 	
 public:
 	DS9Thread(QString s1, QString s2);
-	~DS9Thread();
+    ~DS9Thread() override;
 	
 protected:
-	void run();
+    void run() override;
 	
 private:
 	QProcess *process;

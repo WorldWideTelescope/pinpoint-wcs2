@@ -13,10 +13,10 @@ CXX           = g++
 DEFINES       = -DUNIX_ENV=1 -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -m32 -pipe -O2 -Wall -W -D_REENTRANT $(DEFINES)
 CXXFLAGS      = -m32 -pipe -O2 -Wall -W -D_REENTRANT $(DEFINES)
-INCPATH       = -I../../../QtSDK/Desktop/Qt/474/gcc/mkspecs/linux-g++-32 -I. -I../../../QtSDK/Desktop/Qt/474/gcc/include/QtCore -I../../../QtSDK/Desktop/Qt/474/gcc/include/QtGui -I../../../QtSDK/Desktop/Qt/474/gcc/include -I. -Igui -Ibackend -I../cfitsio/include -I../libwcs -I../eigen -I../XMP-Toolkit-SDK-5.1.2/public/include -I../xpa-2.1.13/include -I. -I.
+INCPATH       = -I../../../QtSDK/Desktop/Qt/474/gcc/mkspecs/linux-g++-32 -I. -I../../../QtSDK/Desktop/Qt/474/gcc/include/QtCore -I../../../QtSDK/Desktop/Qt/474/gcc/include/QtGui -I../../../QtSDK/Desktop/Qt/474/gcc/include -I. -Igui -Ibackend -I../cfitsio/include -I../wcslib/C/ -I../eigen -I../XMP-Toolkit-SDK-5.1.2/public/include -I../xpa-2.1.13/include -I. -I.
 LINK          = g++
 LFLAGS        = -m32 -Wl,-O1 -Wl,-rpath,/home/akapadia/QtSDK/Desktop/Qt/474/gcc/lib
-LIBS          = $(SUBLIBS)  -L/home/akapadia/QtSDK/Desktop/Qt/474/gcc/lib -L../cfitsio/lib -lcfitsio -L../libwcs -lwcs -lm ../XMP-Toolkit-SDK-5.1.2/public/libraries/i80386linux/release/staticXMPCore.ar ../XMP-Toolkit-SDK-5.1.2/public/libraries/i80386linux/release/staticXMPFiles.ar -L../xpa-2.1.13/lib -lxpa -lQtGui -lQtCore -lpthread 
+LIBS          = $(SUBLIBS)  -L/home/akapadia/QtSDK/Desktop/Qt/474/gcc/lib -L../cfitsio/lib -lcfitsio  -lwcs -lm ../XMP-Toolkit-SDK-5.1.2/public/libraries/i80386linux/release/staticXMPCore.ar ../XMP-Toolkit-SDK-5.1.2/public/libraries/i80386linux/release/staticXMPFiles.ar -L../xpa-2.1.13/lib -lxpa -lQtGui -lQtCore -lpthread 
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /home/akapadia/QtSDK/Desktop/Qt/474/gcc/bin/qmake

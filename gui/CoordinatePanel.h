@@ -31,8 +31,8 @@ class CoordinatePanel : public QFrame
 		Q_OBJECT
 		
 	public:
-		CoordinatePanel(PPWcsImage *im, QWidget *parent = 0);
-		~CoordinatePanel();
+        CoordinatePanel(PPWcsImage *im, QWidget *parent = nullptr);
+        ~CoordinatePanel() override;
 		Ui::CoordinatePanel ui;
 		
 	public slots:

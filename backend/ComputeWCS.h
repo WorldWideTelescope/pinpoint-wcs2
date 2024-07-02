@@ -25,6 +25,7 @@
 #include <QPair>
 #include <Eigen/Core>
 #include "wcs.h"
+#include <QObject>
 
 #define _USE_MATH_DEFINES
 using namespace Eigen;
@@ -36,10 +37,10 @@ class ComputeWCS : public QObject
 	
 public:
 	// Methods
-	ComputeWCS(QList<QPointF> *ref, QList<QPointF> *epo, struct WorldCoor *refWCS, double w, double h);
+    /*ComputeWCS(QList<QPointF> *ref, QList<QPointF> *epo, struct WorldCoor *refWCS, double w, double h);
 	~ComputeWCS();
 	struct WorldCoor* initTargetWCS();
-	
+    */
 	// Public Attributes
 	bool epoWCS;
 	bool mappingExists;
@@ -65,10 +66,13 @@ public:
 	Vector2d epoToFits(double x, double y);
 	Vector2d epoToFits(Vector2d p);
 	Vector2d gsPix2fitsPix(Vector2d p);
-        void setDownsampleFactor(int factor);
+    void setDownsampleFactor(int factor);
 
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
+    // Methods
+        ComputeWCS(QList<QPointF> *ref, QList<QPointF> *epo, struct WorldCoor *refWCS, double w, double h);
+        ~ComputeWCS() override;
+        struct WorldCoor* initTargetWCS();
 public slots:
 	void computeTargetWCS();
 	
@@ -87,12 +91,12 @@ private:
 
 	// Attributes
         int M;
-	MatrixXd matrix;
-	VectorXd xvector;
-	VectorXd yvector;
-	VectorXd xcoeff;
-	VectorXd ycoeff;
-	VectorXd basis;
+    MatrixXd matrix;   //defined in Eigen X=dynamic d=double
+    VectorXd xvector;  //defined in Eigen The X vector
+    VectorXd yvector;  //Y vector
+    VectorXd xcoeff;   //x coefficent
+    VectorXd ycoeff;   //y coefficent
+    VectorXd basis;    //Base vector
 	struct WorldCoor *referenceWCS;
 		
 	// Common calculation variables

@@ -31,9 +31,9 @@ class WcsInfoPanel : public QFrame
 		Q_OBJECT
 		
 	public:
-		WcsInfoPanel(bool ref, QWidget *parent = 0);
-		~WcsInfoPanel();
-		void loadWCS(struct WorldCoor* wcs, double rms_x = NULL, double rms_y = NULL);
+        WcsInfoPanel(bool ref, QWidget *parent = nullptr);
+        ~WcsInfoPanel() override;
+        void loadWCS(struct WorldCoor* wcs, double rms_x = 0.0, double rms_y = NULL);
 		void clear();
 		
 	public slots:

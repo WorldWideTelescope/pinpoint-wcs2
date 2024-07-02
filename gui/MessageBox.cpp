@@ -33,6 +33,13 @@ MessageBox::~MessageBox()
 {
 	delete icon;
 }
+//message box for a bad fits file
+void MessageBox::badFITS(){
+
+    setText("<b>FITS File is not an image.</b>");
+    icon->load(":/gui/images/bad.png");
+    setIconPixmap(*icon);
+}
 
 void MessageBox::setStatus(bool status)
 {

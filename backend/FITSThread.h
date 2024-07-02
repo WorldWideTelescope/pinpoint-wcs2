@@ -29,13 +29,15 @@ class FITSThread : public QThread {
 	
 public:
 	FITSThread();
+    ~FITSThread() override;
 	void setup(FitsImage *f);
 	
 protected:
-	void run();
+    void run() override;
 	
 private:
 	FitsImage *fitsImage;
+    bool doContinue;
 };
 
 #endif

@@ -37,10 +37,16 @@ class AddCommand : public QUndoCommand
 {
 	
 public:
+    enum {Type = 1234};
 	AddCommand(GraphicsScene *graphicsScene, const QVariant &value, CoordinateModel *model);
-	~AddCommand();
-	void redo();
-	void undo();
+    ~AddCommand() override;
+    void redo() override;
+    void undo() override;
+    int type() const
+       {
+           // Enable the use of qgraphicsitem_cast with this item.
+           return Type;
+       }
 
 private:
 	CoordinateMarker *marker;
@@ -56,11 +62,11 @@ class MoveCommand : public QUndoCommand
 public:
 	enum { Id = 1234 };
 	
-	MoveCommand(GraphicsScene *s, const QVariant &newValue, const QVariant &oldValue, CoordinateModel *model, QModelIndex *index = 0);
-	void undo();
-	void redo();
-	bool mergeWith(const QUndoCommand *command);
-	int id() const { return Id; }
+    MoveCommand(GraphicsScene *s, const QVariant &newValue, const QVariant &oldValue, CoordinateModel *model, QModelIndex *index = nullptr);
+    void undo() override;
+    void redo() override;
+    bool mergeWith(const QUndoCommand *command) override;
+    int id() const override { return Id; }
 	
 //private:
 	CoordinateModel *dataModel;

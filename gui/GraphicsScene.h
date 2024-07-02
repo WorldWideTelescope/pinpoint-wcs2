@@ -30,8 +30,8 @@ class GraphicsScene : public QGraphicsScene
 	Q_OBJECT
 		
 public:
-	GraphicsScene(QPixmap *pix, bool ref, QObject *parent = 0);
-	~GraphicsScene();
+    GraphicsScene(QPixmap *pix, bool ref, QObject *parent = nullptr);
+    ~GraphicsScene() override;
 	bool reference;
 	float measure;
 	QGraphicsRectItem *centralItem;
@@ -39,12 +39,12 @@ public:
 	void signalItemMoved(CoordinateMarker *m, QPointF oldPos);
 		
 protected:
-	void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
-	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
-	void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
 	QPointF oldPos;

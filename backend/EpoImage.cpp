@@ -19,12 +19,16 @@
 
 #include <QDebug>
 #include "EpoImage.h"
+#include <QImageIOHandler>
 
 
 EpoImage::EpoImage(QString filename) : PPWcsImage()
 {
 	qDebug() << "Initializing EpoImage object ...";
-	pixmap = new QPixmap(filename);
+        pixmap = new QPixmap(filename); //needs to be under 128mb
+
+
+
 	naxisn[0] = pixmap->width();
 	naxisn[1] = pixmap->height();
 	

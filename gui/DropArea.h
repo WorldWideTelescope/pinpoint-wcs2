@@ -23,23 +23,24 @@
 #include <QLabel>
 #include <QUrl>
 #include <QDragEnterEvent>
+#include <QMimeData>
 
 
 class DropArea : public QLabel
 {
 	Q_OBJECT
 public:
-	DropArea(QWidget *parent = 0);
-	~DropArea();
+    DropArea(QWidget *parent = nullptr);
+    ~DropArea() override;
 	void setup(bool exts);
 	void clean();
 	bool ready;
 	QString filepath;
 
 protected:
-	void dragEnterEvent(QDragEnterEvent *event);
-	void dragLeaveEvent(QDragLeaveEvent *event);
-	void dropEvent(QDropEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragLeaveEvent(QDragLeaveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private:
 	QString defaultText;

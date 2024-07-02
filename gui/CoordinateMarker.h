@@ -35,21 +35,21 @@ class CoordinateMarker : public QGraphicsItem
 	
 public:
 	enum {Type = UserType + 1};
-	CoordinateMarker(QModelIndex &idx, QGraphicsItem *parent = 0);
-	~CoordinateMarker();
+    CoordinateMarker(QModelIndex &idx, QGraphicsItem *parent = nullptr);
+    ~CoordinateMarker() override;
 	
 	// Required methods to implement
-	QRectF boundingRect() const;
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *item, QWidget *widget);
-	QPainterPath shape() const;
-	int type() const { return Type; }
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *item, QWidget *widget) override;
+    QPainterPath shape() const override;
+    int type() const override { return Type; } //enables qgraphicsitem_cast
 
 protected:
-	void wheelEvent(QGraphicsSceneWheelEvent *event);
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
-	void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+    void wheelEvent(QGraphicsSceneWheelEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 	
 private:
 	QPersistentModelIndex *index;

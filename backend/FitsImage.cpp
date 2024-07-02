@@ -36,16 +36,28 @@ FitsImage::FitsImage(QString &fileName) : PPWcsImage()
 	status = 0;
 	lowerPercentile = 0.0025;
 	upperPercentile = 0.9975;
-	
-	downsampled = false;
+    // Initialize some attributes
+    fptr = nullptr;
+    imagedata = nullptr;
+    renderdata = nullptr;
+
+    downsampled = false;
+
 }
 
 
 FitsImage::~FitsImage()
 {
 	qDebug() << "~FitsImage";
-	free(imagedata);
-	free(fptr);
+    if(imagedata != nullptr)
+        free(imagedata);
+    qDebug() << "~FitsImage";
+    if(fptr != nullptr)
+        free(fptr);
+    qDebug() << "~FitsImage";
+  //  if(renderdata != nullptr)
+    //    free(renderdata);
+    qDebug() << "~FitsImage";
 }
 
 
@@ -53,10 +65,8 @@ bool FitsImage::setup()
 {	
 	qDebug() << "Setting up FitsImage object ...";
 	
-	// Initialize some attributes
-	fptr = NULL;
-	imagedata = NULL;
-	renderdata = NULL;
+
+
 	
 	// Open FITS file
 	fits_open_file(&fptr, filename.toStdString().c_str(), READONLY, &status);
@@ -65,7 +75,7 @@ bool FitsImage::setup()
 		fits_report_error(stderr, status);
 		return false;
 	}
-	
+    //beef this up to report an error window instead of crashing
 	// Check the number of HDUs
 	fits_get_num_hdus(fptr, &numhdus, &status);
 	if (status)
@@ -73,10 +83,25 @@ bool FitsImage::setup()
 		fits_report_error(stderr, status);
 		return false;
 	}
-	
+    qDebug()<<"file: "<<filename<<" has "<<numhdus<< "HDU";
 	// Set number of images to zero
 	numimgs = 0;
-	
+    //Check for image
+    if(numhdus > 0){
+        for (int ii = 1; ii < numhdus; ii++) {
+            qDebug()<<"header "<<ii;
+            // Change to another HDU and check type
+            fits_movabs_hdu(fptr, ii, &hdutype, &status);
+            fits_get_hdu_type(fptr, &hdutype, &status);
+            if (hdutype != IMAGE_HDU){
+                qDebug()<<"This is not an image"<<hdutype;
+                qDebug()<<"Sending emit";
+                emit badFile(true);
+                qDebug()<<"Signal should be caught";
+                return false; //should go back to thread
+            }
+        }
+    }//end image check
 	// Begin looping over each HDU
 	for (int kk=1; kk <= numhdus; kk++)
 	{
@@ -89,11 +114,15 @@ bool FitsImage::setup()
 		
 		qDebug() << "Header Number: " << kk;
 		
-		if (hdutype != IMAGE_HDU)
+        if (hdutype != IMAGE_HDU){
+            QMessageBox msgBox;
+            msgBox.setText("This is not a FITS Image");
+            msgBox.exec();
 			continue;
-		
+        }
+        qDebug()<<"hdutype="<<hdutype;
 		// Check image dimensions and size
-		fits_get_img_dim(fptr, &naxis, &status);
+        fits_get_img_dim(fptr, &naxis, &status);
 		if (status)
 		{
 			qDebug() << "fits_get_img_dim";
@@ -102,7 +131,10 @@ bool FitsImage::setup()
 		}
 		
 		if (naxis != 2)
-		{
+        {
+            QMessageBox msgBox;
+            msgBox.setText("The document has been modified.");
+            msgBox.exec();
 			qDebug() << "Image does not have the correct dimensions ...";
 			continue;
 		}
@@ -123,7 +155,7 @@ bool FitsImage::setup()
 		
 		// Compute the total number of pixels in image array
 		numelements = width*height;
-		
+        qDebug()<<"Number of pixels "<<numelements;
 		// The HDU is a valid image, increment
 		numimgs++;
 		
@@ -137,27 +169,30 @@ bool FitsImage::setup()
 		qDebug() << "BITPIX: " << bitpix;
 		
 		// Allocate memory for the first pixel
-		fpixel = (long *) malloc(naxis * sizeof(long));
-		
+        //fpixel = (long *) malloc(naxis * sizeof(long)); Old Style,
+        fpixel = new long(naxis * sizeof (long));
 		// Initialize the first pixel location to {1, ..., 1}
 		for (ii=0; ii<naxis; ii++)
 			fpixel[ii] = 1;
-		
+        qDebug()<<"Assigned fpixel";
+
 		// Allocate memory for the image pixels
-		imagedata = (float *) malloc(numelements * sizeof(float));
+        imagedata= (float *)malloc(numelements * sizeof(float));
+        //imagedata = new float(numelements * sizeof(float));//arrays allocated with new crash?
 		if (!imagedata)
 		{
 			qDebug() << "Failed to allocate memory for the image array ...";
-			free(fpixel);
+            delete(fpixel);
 			continue;
 		}
-		
-		fits_read_pix(fptr, TFLOAT, fpixel, numelements, NULL, imagedata, NULL, &status);
-		free(fpixel);		
+        qDebug()<<"allocated imagedata";
+        fits_read_pix(fptr, TFLOAT, fpixel, numelements, nullptr, imagedata, NULL, &status);
+        delete(fpixel);
+        qDebug()<<"completed fits_read_pix";
 		if (status)
 		{
 			// Free the allocated memory
-			free(imagedata);
+            delete(imagedata);
 			qDebug() << "fits_read_pix";
 			fits_report_error(stderr, status);
 			continue;
@@ -201,11 +236,12 @@ bool FitsImage::setup()
 		calculatePercentile(lowerPercentile, upperPercentile);
 		
 		// Initialize a working array
-		renderdata = (float *) malloc(numelements * sizeof(float));
+        //renderdata = new float(numelements * sizeof(float));
+        renderdata = (float *) malloc(numelements * sizeof(float));
 		if (!renderdata)
 		{
 			qDebug() << "Failed to allocate memory for the render array ...";
-			free(imagedata);
+            delete(imagedata);
 			continue;
 		}
 		
@@ -244,7 +280,7 @@ bool FitsImage::verifyWCS()
 	if (status)
 	{
 		// Free the allocated memory
-		free(header);
+        free(header);
 		qDebug() << "fits_hdr2str";
 		fits_report_error(stderr, status);
 		return false;
@@ -392,11 +428,12 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
 	qDebug() << "Calibrating image for display ...";
 	
 	// Initialize a working array
-	renderdata = (float *) malloc(numelements * sizeof(float));
+    renderdata= (float*) malloc(numelements*(sizeof(float)));
+    //renderdata = new float(numelements * sizeof(float));
 	if (!renderdata)
 	{
 		qDebug() << "Failed to allocate memory for the render array ...";
-		free(imagedata);
+        delete(imagedata);
 		return false;
 	}
 	
@@ -546,7 +583,8 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
 				{
 					long index = jj+width*(height-ii-1);
 					int pixel = floor(255.0 * renderdata[index] + 0.5);
-					QRgb *p = (QRgb *) image->scanLine(ii) + jj;
+                    QRgb *p = reinterpret_cast<QRgb*>(image->scanLine(ii) + jj);
+                    //QRgb *p = new (QRgb)(image->scanline(ii) +jj);
 					*p = qRgb(pixel, pixel, pixel);
 				}
 			}	
@@ -554,7 +592,7 @@ bool FitsImage::calibrateImage(int s, float minpix, float maxpix)
 	}
 	
 	// Free some memory
-	free(renderdata);
+    delete(renderdata);
 	
 	// Set pixmap
 	pixmap = QPixmap(QPixmap::fromImage(*image, Qt::DiffuseDither));
@@ -601,7 +639,7 @@ void FitsImage::invert()
 
 QPointF FitsImage::fpix2pix(QPointF pos)
 {
-	float xf, yf;
+    double xf, yf;
 	
 	// First unbin the pixel
 	xf = M*(pos.x()-1)+1;
@@ -619,7 +657,7 @@ float FitsImage::pixelIntensity(QPointF pos)
 {
 	if (pos.x() > 0 && pos.x() < width && pos.y() > 0 && pos.y() < height)
 	{
-		float xf, yf;
+        double xf, yf;
 		
 		// Transform QGraphicsScene pixels to FITS pixels
 		// Pixels do not need to be unbinned since this function
@@ -726,8 +764,9 @@ void FitsImage::getCentroid(QPointF pos)
 	pos = maxPos;
 	
 	// Prep data for centroid algorithm
-	float *im;
-	im = (float *) malloc(9 * sizeof(float));
+    float *im=nullptr;
+    im = new float(9*(sizeof(float)));
+    //(float *) malloc(9 * sizeof(float));
 	
 	// Copy intensity values to array
 	im[0] = pixelIntensity(pos + QPointF(-1, -1));
@@ -742,7 +781,7 @@ void FitsImage::getCentroid(QPointF pos)
 	
 	float xcen, ycen;
 	PinpointWCSUtils::cen3x3(im, &xcen, &ycen);
-	free(im);
+    delete(im);
 	
 	// Map coordinate to image
 	pos.setX(floor(pos.x())+0.5);
@@ -759,7 +798,7 @@ double* FitsImage::pix2sky(QPointF pos)
 		
 	
 	// Get unbinned pixel
-	float xf, yf;
+    double xf, yf;
 	
 	// Transform from binned QPixmap pixels to FITS pixels
 	// this includes a 1 and 1/2 pixel offset.

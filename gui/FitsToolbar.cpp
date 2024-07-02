@@ -38,7 +38,7 @@ FitsToolbar::FitsToolbar(QWidget *parent)
 	QPalette palette;
 	QColor bgcolor = QColor(0, 0, 0, 100);
 	QColor textcolor = QColor(230, 230, 230);
-	palette.setColor(QPalette::Background, bgcolor);
+    palette.setColor(QPalette::Window, bgcolor);
 	palette.setColor(QPalette::WindowText, textcolor);
 	setPalette(palette);
 	

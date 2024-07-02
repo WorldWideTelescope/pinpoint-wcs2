@@ -22,13 +22,15 @@
 #include <QGraphicsItem>
 #include "GraphicsScene.h"
 #include <math.h>
+#include <QTransform>
 
 GraphicsScene::GraphicsScene(QPixmap *pix, bool ref, QObject *parent)
 : QGraphicsScene(parent)
 {
 	reference = ref;
 	movingItem = 0;
-	setSceneRect(0, 0, pix->width(), pix->height());	
+    qDebug()<<"Image size is "<<pix->width()<<" "<<pix->height();
+    setSceneRect(0, 0, pix->width(), pix->height());
 	ptr_pixmap = addPixmap(*pix);
 	
 	// Compute the measure of the pixmap
@@ -52,7 +54,8 @@ GraphicsScene::GraphicsScene(QPixmap *pix, bool ref, QObject *parent)
 
 GraphicsScene::~GraphicsScene()
 {
-	delete ptr_pixmap;
+    delete ptr_pixmap;
+    delete centralItem;
 }
 
 
@@ -76,8 +79,9 @@ void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QPointF mousePos(event->buttonDownScenePos(Qt::LeftButton).x(),
                      event->buttonDownScenePos(Qt::LeftButton).y());
-    movingItem = itemAt(mousePos.x(), mousePos.y());
-	
+    //movingItem = itemAt(mousePos.x(), mousePos.y());
+    QTransform *tempTrans = new QTransform();
+    movingItem = itemAt(mousePos.x(), mousePos.y(), *tempTrans);
     if (movingItem != 0 && event->button() == Qt::LeftButton) {
         oldPos = movingItem->pos();
     }

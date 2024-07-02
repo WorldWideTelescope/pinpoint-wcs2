@@ -21,6 +21,7 @@
 #define FITSIMAGE_H
 
 #include <QImage>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 class QPixmap;
@@ -49,7 +50,7 @@ class FitsImage : public PPWcsImage {
 public:
 	// Methods
 	FitsImage(QString &fileName);
-	~FitsImage();
+    ~FitsImage() override;
 	bool setup();
 	
 	QString filename;
@@ -58,7 +59,7 @@ public:
 	bool downsampled;
 	float* imagedata;
 	int stretch;
-	QPixmap pixmap;
+    QPixmap pixmap;
 	
 	// Public Methods
 	QPointF fpix2pix(QPointF pos);
@@ -69,11 +70,12 @@ public slots:
 	void setVmax(float maxpix);
 	void invert();
 	void getCentroid(QPointF pos);
-	double* pix2sky(QPointF pos);
+    double* pix2sky(QPointF pos) override;
 	
 signals:
 	void pixmapChanged(QPixmap *pm);
 	void centroid(QPointF pos);
+    void badFile(bool foo);
 	
 private:
 	// Methods

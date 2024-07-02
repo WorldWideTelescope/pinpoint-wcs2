@@ -32,7 +32,7 @@ class PPWcsImage : public QObject {
 public:
 	// Public Methods
 	PPWcsImage();
-	~PPWcsImage();
+    ~PPWcsImage() override;
 	
 	// Attributes
 	struct WorldCoor *wcs;

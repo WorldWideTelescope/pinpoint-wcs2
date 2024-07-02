@@ -70,7 +70,7 @@ void DropArea::clean()
 void DropArea::dragEnterEvent(QDragEnterEvent *event)
 {
 	// Collect all the files that the user is dragging to the widget
-	if (event->mimeData()->hasUrls()) {
+      if (event->mimeData()->hasUrls()) {
 		const QList<QUrl> files = event->mimeData()->urls();
 		
 		// Ignore event if more than one item

@@ -29,8 +29,8 @@ class FitsToolbar : public QFrame
 	Q_OBJECT
 		
 public:
-	FitsToolbar(QWidget *parent = 0);
-	~FitsToolbar();
+    FitsToolbar(QWidget *parent = nullptr);
+    ~FitsToolbar() override;
 	Ui::FitsToolbar ui;
 	void setExtremals(float min, float max);
 	void setSliderValues(float vmin, float vmax);

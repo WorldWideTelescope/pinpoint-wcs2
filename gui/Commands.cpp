@@ -41,7 +41,7 @@ void AddCommand::redo()
 	QModelIndex index1;
 	QModelIndex index2;
 	QPointF coord;
-	int row;
+    //int row;
 	
 	// Determine the number of rows in the data model
 	int numrows = dataModel->rowCount(QModelIndex());
@@ -58,7 +58,7 @@ void AddCommand::redo()
 		coord = initialPosition.toPointF();
 		index1 = dataModel->index(numrows, 0);
 		index2 = dataModel->index(numrows, 1);
-		row = numrows;
+        //row = numrows;
 		
 		// Update the data
 		dataModel->refCoords.replace(numrows, coord);
@@ -72,7 +72,7 @@ void AddCommand::redo()
 		coord = initialPosition.toPointF();
 		index1 = dataModel->index(numrows-1, 2);
 		index2 = dataModel->index(numrows-1, 3);
-		row = numrows-1;
+        //row = numrows-1;
 		
 		// Update the data
 		dataModel->epoCoords.replace(numrows-1, coord);
@@ -143,11 +143,12 @@ MoveCommand::MoveCommand(GraphicsScene *s, const QVariant &newValue, const QVari
 	newPos = newValue.toPointF();
 	oldPos = oldValue.toPointF();
 	scene = s;
-	
+    QTransform *tempTrans = new QTransform();
+
 	// TODO: Check that this code does not introduce the bug causing
 	//		 two markers to move at once.
-	marker = qgraphicsitem_cast<CoordinateMarker*>(scene->itemAt(newPos));
-	
+    //marker = qgraphicsitem_cast<CoordinateMarker*>(scene->itemAt(newPos));
+    marker = qgraphicsitem_cast<CoordinateMarker*>(scene->itemAt(newPos, *tempTrans));
 	if (marker == 0)
 	{
 		QList<QGraphicsItem*> markers = scene->selectedItems();
@@ -223,15 +224,23 @@ void MoveCommand::redo()
 	// Initialize some variables
 	QModelIndex index1;
 	QModelIndex index2;
-
+    QTransform *tempTrans= new QTransform();
 	// If the marker is destroyed by AddCommand::undo(), this code will find the marker using coordinates (shoddy...)
-	if (scene->itemAt(oldPos) != 0)
+    //fixing old itemAt commands
+
+    if(scene->itemAt(oldPos, *tempTrans) != 0)
+    //if (scene->itemAt(oldPos) != 0)
 	{
-		if (scene->itemAt(oldPos)->pos() != QPointF(0, 0))
-			marker = qgraphicsitem_cast<CoordinateMarker*>(scene->itemAt(oldPos));
-	} else if(scene->selectedItems()[0]->pos() != QPointF(0, 0))
-		marker = qgraphicsitem_cast<CoordinateMarker*>(scene->selectedItems()[0]);
-	
+        //if (scene->itemAt(oldPos)->pos() != QPointF(0, 0))
+        if(scene->itemAt(oldPos, *tempTrans)->pos() != QPointF(0,0)) {
+            marker = qgraphicsitem_cast<CoordinateMarker*>(scene->itemAt(oldPos, *tempTrans));
+            //marker = qgraphicsitem_cast<CoordinateMarker*>(scene->itemAt(oldPos));
+        }
+    } else {
+        if(scene->selectedItems()[0]->pos() != QPointF(0, 0)) {
+        marker = qgraphicsitem_cast<CoordinateMarker*>(scene->  selectedItems()[0]);
+        }
+    }
 	int row = marker->index->row();
 	
 	if (scene->reference)

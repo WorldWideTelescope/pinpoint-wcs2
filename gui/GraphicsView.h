@@ -37,13 +37,13 @@ class GraphicsView : public QGraphicsView
 	Q_OBJECT
 	
 public:
-	GraphicsView(QWidget *parent = 0);
-	~GraphicsView();
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
-	void enterEvent(QEvent *event);
-	void leaveEvent(QEvent *event);
-	float scaling();
+    GraphicsView(QWidget *parent = nullptr);
+    ~GraphicsView() override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    virtual void enterEvent(QKeyEvent *event);
+    void leaveEvent(QEvent *event) override;
+    qreal scaling();
 	
 	// Attributes
 	int rotateFactor;
@@ -54,9 +54,9 @@ public slots:
 
 protected:
 	// Methods
-	void mouseReleaseEvent(QMouseEvent *event);
-	void resizeEvent(QResizeEvent *event);
-	void wheelEvent(QWheelEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 	void scaleView(qreal scaleFactor);
 	
 signals:

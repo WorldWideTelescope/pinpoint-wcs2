@@ -36,7 +36,7 @@ class ExportWCS : public QObject {
 	
 public:
 	ExportWCS(QString *f, QPixmap *p, ComputeWCS *cwcs);
-	~ExportWCS();
+    ~ExportWCS() override;
 	QString saveas;
 	bool fitsexport;
 	

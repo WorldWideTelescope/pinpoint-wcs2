@@ -29,6 +29,7 @@
 #include <QSettings>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QPushButton>
 //#include <QtNetwork>
 
 #include "ui_PinpointWCS.h"
@@ -49,7 +50,8 @@
 #include "FITSThread.h"
 #include "DS9Thread.h"
 //#include "HelpPanel.h"
- 
+#define kXMP_NS_CXC "http://pinpoint.cfa.harvard.edu"
+
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -57,7 +59,7 @@ class MainWindow : public QMainWindow
 public:
 	// Constructor and Deconstructor
 	MainWindow();
-	~MainWindow();
+    ~MainWindow() override;
 	
 private:
 	// User Interface Attributes
@@ -72,6 +74,7 @@ private:
 	QActionGroup *stretchActionGroup;
 	QActionGroup *wcsFormatActionGroup;
 	MessageBox *msg;
+    MessageBox *msg2;
 //	HelpPanel *helpPanel;
 	
 	// Image Attributes
@@ -143,8 +146,10 @@ private:
 	void teardownWcsInfoPanelMachine();
 	void teardownCoordPanelMachine();
 	void teardownImageAdjustmentMachine();
-	void resizeEvent(QResizeEvent *event);
-	
+    void resizeEvent(QResizeEvent *event) override;
+    //fits message box
+    void reportBadFits(bool status);
+
 private slots:
 	bool setupImages();
 	bool setupWorkspace();

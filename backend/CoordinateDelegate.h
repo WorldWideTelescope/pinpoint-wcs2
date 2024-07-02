@@ -30,16 +30,16 @@ class CoordinateDelegate : public QItemDelegate
 	Q_OBJECT
 	
 public:
-	CoordinateDelegate(GraphicsScene *s1, GraphicsScene *s2, QObject *parent = 0);
-	QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	void setEditorData(QWidget *editor, const QModelIndex &index) const;
-	void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
-	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    CoordinateDelegate(GraphicsScene *s1, GraphicsScene *s2, QObject *parent = nullptr);
+    QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	
 signals:
-	void itemMoved(GraphicsScene *s, const QPointF &newPosition, const QPointF &oldPosition, QModelIndex *index) const;
-	
+    void itemMoved(GraphicsScene *s, const QPointF &newPosition, const QPointF &oldPosition, QModelIndex *index) const;
+    //removed const from items Moved
 private:
 	GraphicsScene *fitsScene;
 	GraphicsScene *epoScene;

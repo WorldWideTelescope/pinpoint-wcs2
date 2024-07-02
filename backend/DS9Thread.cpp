@@ -52,8 +52,9 @@ void DS9Thread::run()
 	char **methods;
 	char **infos;
 	XPA xpa;
-	xpa = XPAOpen(NULL);
-	int xpaconns = XPANSLookup(xpa, "ds9*", "s", &classes, &names, &methods, &infos);
+    xpa = XPAOpen(nullptr);
+
+    int xpaconns = XPANSLookup(xpa, "ds9*" , "s", &classes, &names, &methods, &infos);
 	
 	// Free some memory
 	for (int i=0; i<xpaconns; i++)
@@ -126,7 +127,7 @@ void DS9Thread::run()
 		strcpy(exported, s2.toStdString().c_str());
 		
 		// Control DS9 baby!!!
-		got = XPASet(xpa, method, orig, "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, orig, nullptr, nullptr, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, "frame new", "", NULL, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, exported, "", NULL, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, "tile", "", NULL, 0, nombres, msgs, NXPA);

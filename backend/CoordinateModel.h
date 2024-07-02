@@ -45,19 +45,20 @@ class CoordinateModel : public QAbstractTableModel
 	friend class MoveCommand;
 	
 public:	
-	CoordinateModel(QObject *parent=0);
-	CoordinateModel(QList<QPointF> r, QList<QPointF> e, QObject *parent=0);
-	~CoordinateModel();
-	
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-	bool setData(GraphicsScene *scene, const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
-	bool updateData(GraphicsScene *scene, const QVariant &newValue, const QVariant &oldValue, QModelIndex *index=0, int role=Qt::EditRole);
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex());
-    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex());
+    CoordinateModel(QObject *parent=nullptr);
+    CoordinateModel(QList<QPointF> r, QList<QPointF> e, QObject *parent=nullptr);
+    ~CoordinateModel() override;
+
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    using QAbstractItemModel::setData;
+    bool setData(GraphicsScene *scene, const QModelIndex &index, const QVariant &value, int role=Qt::EditRole);
+    bool updateData(GraphicsScene *scene, const QVariant &newValue, const QVariant &oldValue, QModelIndex *index=nullptr, int role=Qt::EditRole);
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    bool insertRows(int position, int rows, const QModelIndex &index=QModelIndex()) override;
+    bool removeRows(int position, int rows, const QModelIndex &index=QModelIndex()) override;
 	
 	// Attributes
 	QUndoStack *undoStack;
@@ -65,8 +66,9 @@ public:
 	QList<QPointF> epoCoords;
 
 public slots:
-	void setData(GraphicsScene *s, QPointF coord);
-	void updateData(GraphicsScene *scene, QPointF newCoord, QPointF oldCoord, QModelIndex *index=0);
+
+    virtual void setData(GraphicsScene *s, QPointF coord);
+    void updateData(GraphicsScene *scene, QPointF newCoord, QPointF oldCoord, QModelIndex *index=nullptr);
 	
 protected:
 	void emitDataChanged(const QModelIndex &index1, const QModelIndex &index2);

@@ -44,7 +44,7 @@
 
 // Define the AVM namespace
 #define kXMP_NS_AVM "http://www.communicatingastronomy.org/avm/1.0/"
-#define kXMP_NS_CXC "www.cfa.harvard.edu/~akapadia/pinpointwcs/"
+#define kXMP_NS_CXC "http://pinpoint.cfa.harvard.edu"
 
 
 ExportWCS::ExportWCS(QString *f, QPixmap *p, ComputeWCS *cwcs)
@@ -83,7 +83,7 @@ void ExportWCS::exportFITS()
 	QImage im = pixmap->toImage();
 	
 	// Prompt user for filename
-	saveas = QFileDialog::getSaveFileName(NULL, "Export FITS Image", *filename+"_ppwcs.fits", "Images(*.fit *.fits)", NULL, NULL);
+    saveas = QFileDialog::getSaveFileName(NULL, "Export FITS Image", *filename+"_ppwcs.fits", tr("Images(*.fit *.fits)"));
 	
 	// Check that a filename is chosen
 	if (saveas.isEmpty())
@@ -100,7 +100,7 @@ void ExportWCS::exportFITS()
 	
 	// Allocate memory for the entire image
 	imagedata[0] = (unsigned short *) malloc(naxes[0] * naxes[1] * sizeof(unsigned short));
-	if (!imagedata)
+    if (imagedata == NULL)
 	{
 		fitsexport = false;
 		emit exportResults(fitsexport);
@@ -428,7 +428,8 @@ void ExportWCS::exportXMP()
 				//
 				
 				// Prompt user for filename
-				saveas = QFileDialog::getSaveFileName(NULL, "Export XMP Packet", *filename+".xmp", NULL, NULL, NULL);
+                QString tempfile=*filename+".xmp";
+                saveas = QFileDialog::getSaveFileName(NULL, "Export XMP Packet", *filename+".xmp",tr("Metadata (*.xmp))"));
 
 				// Check that a filename is chosen
 				if (saveas.isEmpty())

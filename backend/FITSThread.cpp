@@ -20,7 +20,10 @@
 #include "FITSThread.h"
 
 FITSThread::FITSThread()
-{}
+{
+    doContinue=true;
+}
+FITSThread::~FITSThread(){}
 
 void FITSThread::setup(FitsImage *f)
 {
@@ -29,5 +32,8 @@ void FITSThread::setup(FitsImage *f)
 
 void FITSThread::run()
 {
-	fitsImage->setup();
+
+     fitsImage->setup();
+
+
 }

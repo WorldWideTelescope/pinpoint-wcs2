@@ -129,11 +129,13 @@ QVariant CoordinateMarker::itemChange(GraphicsItemChange change, const QVariant 
 	}
 	 */
 	if (change == QGraphicsItem::ItemSelectedChange)
-		if (value == true)
+        if (value == true) {
 			setFlag(ItemIsMovable, true);
+        }
 		else
+        {
 			setFlag(ItemIsMovable, false);
-		
+        }
 	return QGraphicsItem::itemChange(change, value);
 }
 

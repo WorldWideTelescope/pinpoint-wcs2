@@ -20,7 +20,7 @@
 #include <QDebug>
 #include "GraphicsView.h"
 #include "GraphicsScene.h"
-#include "math.h"
+#include <math.h>
 //#include <QGLWidget>
 
 GraphicsView::GraphicsView(QWidget *parent)
@@ -104,7 +104,7 @@ void GraphicsView::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
-void GraphicsView::enterEvent(QEvent *event)
+void GraphicsView::enterEvent(QKeyEvent *event)
 {
 	// Reset some graphics view settings
 	// Testing: Testing panning by default
@@ -132,19 +132,25 @@ void GraphicsView::leaveEvent(QEvent *event)
 
 void GraphicsView::wheelEvent(QWheelEvent *event)
 {
-	scaleView(pow((double)2, event->delta() / 240.0));
+// double and Qreal....
+    //changed event->delta to event->angleDelta().y()
+
+    scaleView(pow(static_cast<double>(2.0), event->angleDelta().y() /240.0));
+
 }
 
 void GraphicsView::scaleView(qreal scaleFactor)
 {
-	qreal factor = matrix().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
+
+    //replace matrix to transform. Qt6
+    qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
 	
 	if (factor < MINZOOM || factor > MAXZOOM)
 		return;	
 	scale(scaleFactor, scaleFactor);
 }
 
-float GraphicsView::scaling()
+qreal GraphicsView::scaling()
 {
 	// Get transform matrix
 	QTransform t = transform();
@@ -157,12 +163,12 @@ float GraphicsView::scaling()
 
 void GraphicsView::rotateCW()
 {
-	rotate(5);
-	rotateFactor = (rotateFactor + 5) % 360;
+    rotate(90);//default is 90
+    rotateFactor = (rotateFactor + 90) % 360;
 }
 
 void GraphicsView::rotateCCW()
 {
-	rotate(-5);
-	rotateFactor = (rotateFactor - 5) % 360;
+    rotate(-90);//make it 90 instead of 5
+    rotateFactor = (rotateFactor - 90) % 360;
 }

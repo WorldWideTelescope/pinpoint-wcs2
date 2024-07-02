@@ -31,10 +31,11 @@ class MessageBox : public QMessageBox
 		Q_OBJECT
 		
 	public:
-		MessageBox(const QString &title, QWidget *parent = 0, Qt::WindowFlags f = Qt::Dialog|Qt::MSWindowsFixedSizeDialogHint);
-		~MessageBox();
+        MessageBox(const QString &title, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::Dialog|Qt::MSWindowsFixedSizeDialogHint);
+        ~MessageBox() override;
+        void badFITS();
 		void setStatus(bool status);
-		void closeEvent(QCloseEvent *event);
+        void closeEvent(QCloseEvent *event) override;
 		
 		QPixmap *icon;
 		

@@ -29,12 +29,12 @@ class CoordinateTableDialog : public QDialog
 	Q_OBJECT
 	
 public:
-	CoordinateTableDialog(QWidget *parent = 0);
-	~CoordinateTableDialog();
+    CoordinateTableDialog(QWidget *parent = nullptr);
+    ~CoordinateTableDialog() override;
 	Ui::CoordinateTableDialog ui;
 	
 protected:
-	void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 	
 private:
 	QPoint lastPos;

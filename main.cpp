@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	app.setApplicationVersion(VERSION);
 	app.setOrganizationName("SAO");
 	app.setOrganizationDomain("http://www.cfa.harvard.edu/~akapadia/pinpointwcs");
-	
+    app.setWindowIcon(QIcon("./images/logo.icns"));
 	/*
 	// Set style sheet
     QFile styleSheet(":/gui/style.qss");

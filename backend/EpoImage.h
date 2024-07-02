@@ -33,8 +33,8 @@ class EpoImage : public PPWcsImage {
 public:
 	// Public Methods
 	EpoImage(QString filename);
-	~EpoImage();
-	double* pix2sky(QPointF pos);
+    ~EpoImage() override;
+    double* pix2sky(QPointF pos) override;
 
 public slots:
 	void invert();

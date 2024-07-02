@@ -28,8 +28,8 @@ class HelpPanel : public QFrame
 	Q_OBJECT
 	
 public:
-	HelpPanel(QWidget *parent = 0);
-	~HelpPanel();
+    HelpPanel(QWidget *parent = nullptr);
+    ~HelpPanel() override;
 	Ui::HelpPanel ui;
 	
 public slots:

@@ -3,9 +3,11 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = 
+TARGET = PinpointWCS 
 DEPENDPATH += . backend gui
 INCLUDEPATH += . gui backend
+
+QT += core gui widgets statemachine
 
 include(pinpointwcs-crossplatform.pro)
 
