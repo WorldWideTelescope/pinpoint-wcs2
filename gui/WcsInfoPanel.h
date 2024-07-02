@@ -23,7 +23,7 @@
 #include <QFrame>
 #include "ui_WcsInfoPanel.h"
 #include "wcs.h"
-#include "fitsfile.h"
+//#include "fitsfile.h"
 
 
 class WcsInfoPanel : public QFrame
