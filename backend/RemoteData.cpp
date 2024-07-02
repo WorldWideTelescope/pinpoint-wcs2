@@ -18,6 +18,7 @@
  */
 
 #include <QDebug>
+#include <QUrlQuery>
 #include "RemoteData.h"
 
 
@@ -30,16 +31,16 @@ RemoteData::~RemoteData()
 void RemoteData::pingSimbad()
 {
 	qDebug() << "Pinging SIMBAD ...";
-	
+
 	// Generate URL
-	QUrl q("http://simbad.u-strasbg.fr/simbad/sim-coo");
+	QUrlQuery q;
 	q.addQueryItem("Coord", "210.801871+54.348181");
 	q.addQueryItem("Radius", "1536.5808");
 	q.addQueryItem("Radius.unit", "arcsec");
 	q.addQueryItem("CooFrame", "ICRS");
 	q.addQueryItem("CooEpoch", "2000");
 	q.addQueryItem("CooEqui", "2000");
-	q.addQueryItem("output.format", "VOTable");	
+	q.addQueryItem("output.format", "VOTable");
 	q.addQueryItem("output.max", "2");
 	q.addQueryItem("obj.cooN", "off");
 	q.addQueryItem("list.cooN", "off");
@@ -59,11 +60,13 @@ void RemoteData::pingSimbad()
 	q.addQueryItem("list.messel", "off");
 	q.addQueryItem("obj.notesel", "off");
 	q.addQueryItem("list.notesel", "off");
-	
-	qDebug() << q;
+
+	QUrl u("http://simbad.u-strasbg.fr/simbad/sim-coo");
+	u.setQuery(q);
+
 	manager = new QNetworkAccessManager(this);
 	connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(retreiveSIMBAD(QNetworkReply*)));
-	manager->get(QNetworkRequest(q));
+	manager->get(QNetworkRequest(u));
 }
 
 void RemoteData::retreiveSIMBAD(QNetworkReply* reply)
