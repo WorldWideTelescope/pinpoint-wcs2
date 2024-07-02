@@ -20,6 +20,8 @@
 #include <QDebug>
 #include <QPalette>
 
+#include <cmath>
+
 #include "WcsInfoPanel.h"
 
 WcsInfoPanel::WcsInfoPanel(bool ref, QWidget *parent)
@@ -130,7 +132,7 @@ void WcsInfoPanel::loadWCS(struct WorldCoor* wcs, double rms_x, double rms_y)
     {
         QString orientation = QString("%1%2").arg((wcs->rot-360), 0, 'f', 6).arg(QChar(176));
         ui.misc1_input1->setText(orientation);
-        if (rms_x != NULL)
+        if (!std::isnan(rms_x))
         {
             QString rms1 = QString("%1 px").arg(rms_x, 0, 'f', 2);
             QString rms2 = QString("%1 px").arg(rms_y, 0, 'f', 2);

@@ -179,10 +179,12 @@ void ComputeWCS::computeTargetWCS()
 }
 
 
-struct WorldCoor* ComputeWCS::initTargetWCS()
+struct WorldCoor *
+ComputeWCS::initTargetWCS()
 {
     struct WorldCoor *targetWCS;
     double *cd;
+
     cd = (double *) malloc(4 * sizeof(double));
     cd[0] = cdmatrix(0);
     cd[1] = cdmatrix(1);
@@ -190,35 +192,42 @@ struct WorldCoor* ComputeWCS::initTargetWCS()
     cd[3] = cdmatrix(3);
 
     // Determine the reference image's reference pixel from the frame of reference of the EPO image
-        double crpix_x = (referenceWCS->crpix[0] - 1) / M + 1;
-        double crpix_y = (referenceWCS->crpix[1] - 1) / M + 1;
-        crpix = fitsToEpo(crpix_x, crpix_y);
+    double crpix_x = (referenceWCS->crpix[0] - 1) / M + 1;
+    double crpix_y = (referenceWCS->crpix[1] - 1) / M + 1;
+    crpix = fitsToEpo(crpix_x, crpix_y);
 
-
-        //crpix = fitsToEpo( (M*(referenceWCS->crpix[0]-1)+1), (referenceWCS->crpix[1]-1)+1) ;
-
-    targetWCS = wcskinit(width, height, "RA---TAN", "DEC--TAN",
-                         crpix(0), height-crpix(1)+1, referenceWCS->crval[0], referenceWCS->crval[1],
-                         cd, 0.0, 0.0,
-                         0.0, referenceWCS->equinox, referenceWCS->epoch
+    targetWCS = wcskinit(
+        width,
+        height,
+        (char *) "RA---TAN",
+        (char *) "DEC--TAN",
+        crpix(0),
+        height - crpix(1) + 1,
+        referenceWCS->crval[0],
+        referenceWCS->crval[1],
+        cd,
+        0.0,
+        0.0,
+        0.0,
+        referenceWCS->equinox,
+        referenceWCS->epoch
     );
 
     free(cd);
 
     // Set output coordinates
-    wcsoutinit(targetWCS, "FK5");
+    wcsoutinit(targetWCS, (char *) "FK5");
 
     // Calculate the coordinates for the center of the image (for the folks at STScI)
     // Center pixel transforms on to itself (no need to apply QGraphicsScene pixels -> FITS pixels transformation!)
-    center_x = 0.5*width + 0.5;
-    center_y = 0.5*height + 0.5;
+    center_x = 0.5 * width + 0.5;
+    center_y = 0.5 * height + 0.5;
     pix2wcs(targetWCS, center_x, center_y, &centerRA, &centerDec);
-    center_x = 0.5*height;
-    center_y = 0.5*width;
-    std::cout << "Dimensions\t" << center_x << "\t" << center_y << std::endl;
-    std::cout << "Center coords\t"<<centerRA <<"\t"<< centerDec<<std::endl;
-//	printf("Center Pixel:\t%.11f\t%.11f\n", centerRA, centerDec);
+    center_x = 0.5 * height;
+    center_y = 0.5 * width;
 
+    std::cout << "Dimensions\t" << center_x << "\t" << center_y << std::endl;
+    std::cout << "Center coords\t" << centerRA <<"\t"<< centerDec << std::endl;
     return targetWCS;
 }
 

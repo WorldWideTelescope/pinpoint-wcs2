@@ -273,7 +273,7 @@ bool FitsImage::verifyWCS()
     // Define all the variables needed for complete WCS
     char *header;
     int ncards;
-    alt = NULL;
+    alt = ' ';
 
     // Call cfitsio routines to get the header
     fits_hdr2str(fptr, 1, NULL, 0, &header, &ncards, &status);
@@ -292,10 +292,10 @@ bool FitsImage::verifyWCS()
     {
         // No primary WCS found, check alternates
         int ii;
-        char *alts = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const char *alts = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         for (ii=0; ii<26; ii++)
         {
-            wcs = wcsinitc(header, &alts[ii]);
+            wcs = wcsinitc(header, (char *) &alts[ii]);
             if (nowcs(wcs))
             {
                 // Check if the last possible alternate
@@ -317,7 +317,7 @@ bool FitsImage::verifyWCS()
     }
 
     // Set output coordinates, needed by pix2wcs
-    wcsoutinit(wcs, "J2000");
+    wcsoutinit(wcs, (char *) "J2000");
 //	PinpointWCSUtils::dumpWCS(wcs);
 
     qDebug() << "WCS found!!!";\

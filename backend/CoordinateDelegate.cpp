@@ -138,7 +138,8 @@ void CoordinateDelegate::setModelData(QWidget *editor, QAbstractItemModel *model
     }
 }
 
-QSize CoordinateDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize
+CoordinateDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QItemDelegate::sizeHint(option, index);
+    return QItemDelegate::sizeHint(option, index);
 }

@@ -32,7 +32,8 @@ DS9Thread::~DS9Thread()
     delete process;
 }
 
-void DS9Thread::run()
+void
+DS9Thread::run()
 {
     // Start DS9
     process = new QProcess();
@@ -54,7 +55,15 @@ void DS9Thread::run()
     XPA xpa;
     xpa = XPAOpen(nullptr);
 
-    int xpaconns = XPANSLookup(xpa, "ds9*" , "s", &classes, &names, &methods, &infos);
+    int xpaconns = XPANSLookup(
+        xpa,
+        (char *) "ds9*" ,
+        (char *) "s",
+        &classes,
+        &names,
+        &methods,
+        &infos
+    );
 
     // Free some memory
     for (int i=0; i<xpaconns; i++)
@@ -72,13 +81,13 @@ void DS9Thread::run()
     if (started)
     {
         // Determine the number of available XPA connections to DS9
-        int n = XPANSLookup(xpa, "ds9*", "s", &classes, &names, &methods, &infos);
+        int n = XPANSLookup(xpa, (char *) "ds9*", (char *) "s", &classes, &names, &methods, &infos);
 
         // Determine if the new XPA connection is open
         int attempt = 0;
         while (attempt < 3)
         {
-            n = XPANSLookup(xpa, "ds9*", "s", &classes, &names, &methods, &infos);
+            n = XPANSLookup(xpa, (char *) "ds9*", (char *) "s", &classes, &names, &methods, &infos);
             if (n > xpaconns)
                 break;
             qDebug() << "Sleeping ...";
@@ -128,18 +137,17 @@ void DS9Thread::run()
 
         // Control DS9 baby!!!
         got = XPASet(xpa, method, orig, nullptr, nullptr, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, "frame new", "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, exported, "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, "tile", "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, "match frames wcs", "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, "mode crosshair", "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, "lock crosshair wcs", "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, "zoom to fit", "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, "frame next", "", NULL, 0, nombres, msgs, NXPA);
-        got = XPASet(xpa, method, "zoom to fit", "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, (char *) "frame new", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, exported, (char *) "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, (char *) "tile", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, (char *) "match frames wcs", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, (char *) "mode crosshair", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, (char *) "lock crosshair wcs", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, (char *) "zoom to fit", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, (char *) "frame next", (char *) "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, (char *) "zoom to fit", (char *) "", NULL, 0, nombres, msgs, NXPA);
         qDebug() << nombres[0];
         qDebug() << msgs[0];
-
 
         // Close the XPA persistent connection
         XPAClose(xpa);
