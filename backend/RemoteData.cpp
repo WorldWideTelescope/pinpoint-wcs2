@@ -30,48 +30,48 @@ RemoteData::~RemoteData()
 
 void RemoteData::pingSimbad()
 {
-	qDebug() << "Pinging SIMBAD ...";
+    qDebug() << "Pinging SIMBAD ...";
 
-	// Generate URL
-	QUrlQuery q;
-	q.addQueryItem("Coord", "210.801871+54.348181");
-	q.addQueryItem("Radius", "1536.5808");
-	q.addQueryItem("Radius.unit", "arcsec");
-	q.addQueryItem("CooFrame", "ICRS");
-	q.addQueryItem("CooEpoch", "2000");
-	q.addQueryItem("CooEqui", "2000");
-	q.addQueryItem("output.format", "VOTable");
-	q.addQueryItem("output.max", "2");
-	q.addQueryItem("obj.cooN", "off");
-	q.addQueryItem("list.cooN", "off");
-	q.addQueryItem("obj.pmsel", "off");
-	q.addQueryItem("obj.plxsel", "off");
-	q.addQueryItem("obj.rvsel", "off");
-	q.addQueryItem("obj.spsel", "off");
-	q.addQueryItem("list.spsel", "off");
-	q.addQueryItem("obj.mtsel", "off");
-	q.addQueryItem("obj.sizesel", "off");
-	q.addQueryItem("obj.fluxsel", "off");
-	q.addQueryItem("list.fluxsel", "off");
-	q.addQueryItem("list.idsel", "on");
-	q.addQueryItem("obj.bibsel", "off");
-	q.addQueryItem("list.bibsel", "off");
-	q.addQueryItem("obj.messel", "off");
-	q.addQueryItem("list.messel", "off");
-	q.addQueryItem("obj.notesel", "off");
-	q.addQueryItem("list.notesel", "off");
+    // Generate URL
+    QUrlQuery q;
+    q.addQueryItem("Coord", "210.801871+54.348181");
+    q.addQueryItem("Radius", "1536.5808");
+    q.addQueryItem("Radius.unit", "arcsec");
+    q.addQueryItem("CooFrame", "ICRS");
+    q.addQueryItem("CooEpoch", "2000");
+    q.addQueryItem("CooEqui", "2000");
+    q.addQueryItem("output.format", "VOTable");
+    q.addQueryItem("output.max", "2");
+    q.addQueryItem("obj.cooN", "off");
+    q.addQueryItem("list.cooN", "off");
+    q.addQueryItem("obj.pmsel", "off");
+    q.addQueryItem("obj.plxsel", "off");
+    q.addQueryItem("obj.rvsel", "off");
+    q.addQueryItem("obj.spsel", "off");
+    q.addQueryItem("list.spsel", "off");
+    q.addQueryItem("obj.mtsel", "off");
+    q.addQueryItem("obj.sizesel", "off");
+    q.addQueryItem("obj.fluxsel", "off");
+    q.addQueryItem("list.fluxsel", "off");
+    q.addQueryItem("list.idsel", "on");
+    q.addQueryItem("obj.bibsel", "off");
+    q.addQueryItem("list.bibsel", "off");
+    q.addQueryItem("obj.messel", "off");
+    q.addQueryItem("list.messel", "off");
+    q.addQueryItem("obj.notesel", "off");
+    q.addQueryItem("list.notesel", "off");
 
-	QUrl u("http://simbad.u-strasbg.fr/simbad/sim-coo");
-	u.setQuery(q);
+    QUrl u("http://simbad.u-strasbg.fr/simbad/sim-coo");
+    u.setQuery(q);
 
-	manager = new QNetworkAccessManager(this);
-	connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(retreiveSIMBAD(QNetworkReply*)));
-	manager->get(QNetworkRequest(u));
+    manager = new QNetworkAccessManager(this);
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(retreiveSIMBAD(QNetworkReply*)));
+    manager->get(QNetworkRequest(u));
 }
 
 void RemoteData::retreiveSIMBAD(QNetworkReply* reply)
 {
-	qDebug() << "Retreiving from SIMBAD ...";
-	QByteArray response(reply->readAll());
-	qDebug() << response;
+    qDebug() << "Retreiving from SIMBAD ...";
+    QByteArray response(reply->readAll());
+    qDebug() << response;
 }
