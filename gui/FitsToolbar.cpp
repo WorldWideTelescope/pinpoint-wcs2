@@ -25,70 +25,70 @@
 FitsToolbar::FitsToolbar(QWidget *parent)
 : QFrame(parent)
 {
-	// Set up user interface from the Designer file
-	qDebug() << "Initializing FitsToolbar ...";
+    // Set up user interface from the Designer file
+    qDebug() << "Initializing FitsToolbar ...";
     ui.setupUi(this);
-	
-	// Set up frame style
-	setFrameStyle(QFrame::Panel | QFrame::StyledPanel);
-	
-	// Set up colors
-	setAutoFillBackground(true);
-	setBackgroundRole(QPalette::Window);
-	QPalette palette;
-	QColor bgcolor = QColor(0, 0, 0, 100);
-	QColor textcolor = QColor(230, 230, 230);
+
+    // Set up frame style
+    setFrameStyle(QFrame::Panel | QFrame::StyledPanel);
+
+    // Set up colors
+    setAutoFillBackground(true);
+    setBackgroundRole(QPalette::Window);
+    QPalette palette;
+    QColor bgcolor = QColor(0, 0, 0, 100);
+    QColor textcolor = QColor(230, 230, 230);
     palette.setColor(QPalette::Window, bgcolor);
-	palette.setColor(QPalette::WindowText, textcolor);
-	setPalette(palette);
-	
-	// Resize font
-	QFont font;
-	font.setPointSize(10);
-	
-	// Make signal and slot connections
-	connect(ui.vminSlider, SIGNAL(sliderReleased()), this, SLOT(vminSliderReleased()));
-	connect(ui.vmaxSlider, SIGNAL(sliderReleased()), this, SLOT(vmaxSliderReleased()));
-	
+    palette.setColor(QPalette::WindowText, textcolor);
+    setPalette(palette);
+
+    // Resize font
+    QFont font;
+    font.setPointSize(10);
+
+    // Make signal and slot connections
+    connect(ui.vminSlider, SIGNAL(sliderReleased()), this, SLOT(vminSliderReleased()));
+    connect(ui.vmaxSlider, SIGNAL(sliderReleased()), this, SLOT(vmaxSliderReleased()));
+
 }
 
 FitsToolbar::~FitsToolbar() {}
 
 void FitsToolbar::setExtremals(float min, float max)
 {
-	minimum = min;
-	maximum = max;
-	qDebug() << "Min " << minimum << "Max " << maximum;
+    minimum = min;
+    maximum = max;
+    qDebug() << "Min " << minimum << "Max " << maximum;
 }
 
 void FitsToolbar::setSliderValues(float vmin, float vmax)
 {
-	// Normalize vmin and vmax
-	int minValue, maxValue;
-	minValue = 1000. * (vmin - minimum) / (maximum - minimum);
-	maxValue = 1000. * (vmax - minimum) / (maximum - minimum);
-	
-	ui.vminSlider->setSliderPosition(minValue);
-	ui.vmaxSlider->setSliderPosition(maxValue);
+    // Normalize vmin and vmax
+    int minValue, maxValue;
+    minValue = 1000. * (vmin - minimum) / (maximum - minimum);
+    maxValue = 1000. * (vmax - minimum) / (maximum - minimum);
+
+    ui.vminSlider->setSliderPosition(minValue);
+    ui.vmaxSlider->setSliderPosition(maxValue);
 }
 
 void FitsToolbar::vminSliderReleased()
 {
-	float value;
-	value = (ui.vminSlider->value() * (maximum - minimum) / 1000. + minimum);
-	qDebug() << value;
-	emit updateVmin(value);
+    float value;
+    value = (ui.vminSlider->value() * (maximum - minimum) / 1000. + minimum);
+    qDebug() << value;
+    emit updateVmin(value);
 }
 
 void FitsToolbar::vmaxSliderReleased()
 {
-	float value;
-	value = (ui.vmaxSlider->value() * (maximum - minimum) / 1000. + minimum);
-	qDebug() << value;
-	emit updateVmax(value);
+    float value;
+    value = (ui.vmaxSlider->value() * (maximum - minimum) / 1000. + minimum);
+    qDebug() << value;
+    emit updateVmax(value);
 }
 
 void FitsToolbar::parentResized(QSize sz)
 {
-	resize(sz.width(), height());
+    resize(sz.width(), height());
 }
