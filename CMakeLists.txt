@@ -21,10 +21,19 @@ find_package(Eigen3 REQUIRED)
 
 find_package(XPA REQUIRED)
 
+add_subdirectory(adobexmp)
+
+add_compile_definitions(
+    UNIX_ENV=1
+    XMP_UNIXBuild=1
+    XMP_COMPONENT_INT_NAMESPACE=AdobeXMPCore_Int
+)
+
 include_directories(
     ${CMAKE_SOURCE_DIR}/backend
     ${CMAKE_SOURCE_DIR}/gui
     ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/adobexmp/XMP-Toolkit-SDK/public/include
     ${EIGEN3_INCLUDE_DIR}
     ${LIBWCS_INCLUDE_DIR}
     ${CFITSIO_INCLUDE_DIR}
@@ -94,7 +103,14 @@ add_executable(
 
 target_link_libraries(
     PinpointWCS
-    PUBLIC
+    PRIVATE
+    Qt5::Core
     Qt5::Network
     Qt5::Widgets
+    adobexmp
+    ${LIBWCS_LIBRARY}
+    ${CFITSIO_LIBRARY}
+    ${XPA_LIBRARY}
+    ${EXPAT_LIBRARY_RELEASE}
+    z
 )
