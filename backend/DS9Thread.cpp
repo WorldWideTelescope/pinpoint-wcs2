@@ -23,110 +23,110 @@
 
 DS9Thread::DS9Thread(QString s1, QString s2)
 {
-	orig = s1;
-	exported = s2;
+    orig = s1;
+    exported = s2;
 }
 
 DS9Thread::~DS9Thread()
 {
-	delete process;
+    delete process;
 }
 
 void DS9Thread::run()
 {
-	// Start DS9
-	process = new QProcess();
-	
-	// First check if the location of DS9 is saved in the preference file
-	QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
-	QString ds9path;
+    // Start DS9
+    process = new QProcess();
+
+    // First check if the location of DS9 is saved in the preference file
+    QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
+    QString ds9path;
 #if defined(Q_OS_MAC)
-	ds9path = settings.value("ds9path", "/Applications/SAOImage DS9.app/Contents/MacOS/ds9").toString() + "/Contents/MacOS/ds9";
+    ds9path = settings.value("ds9path", "/Applications/SAOImage DS9.app/Contents/MacOS/ds9").toString() + "/Contents/MacOS/ds9";
 #endif
-	
-	qDebug() << ds9path;
-	
-	// Determine if any XPA connections to DS9 are open
-	char **classes;
-	char **names;
-	char **methods;
-	char **infos;
-	XPA xpa;
+
+    qDebug() << ds9path;
+
+    // Determine if any XPA connections to DS9 are open
+    char **classes;
+    char **names;
+    char **methods;
+    char **infos;
+    XPA xpa;
     xpa = XPAOpen(nullptr);
 
     int xpaconns = XPANSLookup(xpa, "ds9*" , "s", &classes, &names, &methods, &infos);
-	
-	// Free some memory
-	for (int i=0; i<xpaconns; i++)
-	{
-		free(classes[i]);
-		free(names[i]);
-		free(methods[i]);
-		free(infos[i]);
-	}
-	
-	// Start up own instance of DS9
-	process->start("\""+ds9path+"\"");
-	bool started = process->waitForStarted();
-	
-	if (started)
-	{
-		// Determine the number of available XPA connections to DS9
-		int n = XPANSLookup(xpa, "ds9*", "s", &classes, &names, &methods, &infos);
-		
-		// Determine if the new XPA connection is open
-		int attempt = 0;
-		while (attempt < 3)
-		{
-			n = XPANSLookup(xpa, "ds9*", "s", &classes, &names, &methods, &infos);
-			if (n > xpaconns)
-				break;
-			qDebug() << "Sleeping ...";
-			attempt++;
-			this->sleep(3);
-		}
-		
-		if (attempt == 3)
-		{
-			qDebug() << "whoops something happened ...";
-			return;
-		}
-		
-		// Get the name of the template before freeing the memory
-		char *method;
-		method = new char[14];
-		strcpy(method, methods[n-1]);
-		
-		// Free some memory
-		for (int i=0; i<n; i++)
-		{
-			free(classes[i]);
-			free(names[i]);
-			free(methods[i]);
-			free(infos[i]);
-		}
-		free(classes);
-		free(names);
-		free(methods);
-		free(infos);
-		
-		// There exists at least one connection
-		int got;
-		char *nombres[NXPA];
-		char *msgs[NXPA];
-		
-		// Format the commands to be send to DS9
-		QString s1 = "file " + orig;
-		QString s2 = "file " + exported;
-		
-		char *orig, *exported;
-		orig = new char[s1.toStdString().size()+1];
-		exported = new char[s2.toStdString().size()+1];
-		
-		strcpy(orig, s1.toStdString().c_str());
-		strcpy(exported, s2.toStdString().c_str());
-		
-		// Control DS9 baby!!!
+
+    // Free some memory
+    for (int i=0; i<xpaconns; i++)
+    {
+        free(classes[i]);
+        free(names[i]);
+        free(methods[i]);
+        free(infos[i]);
+    }
+
+    // Start up own instance of DS9
+    process->start("\""+ds9path+"\"");
+    bool started = process->waitForStarted();
+
+    if (started)
+    {
+        // Determine the number of available XPA connections to DS9
+        int n = XPANSLookup(xpa, "ds9*", "s", &classes, &names, &methods, &infos);
+
+        // Determine if the new XPA connection is open
+        int attempt = 0;
+        while (attempt < 3)
+        {
+            n = XPANSLookup(xpa, "ds9*", "s", &classes, &names, &methods, &infos);
+            if (n > xpaconns)
+                break;
+            qDebug() << "Sleeping ...";
+            attempt++;
+            this->sleep(3);
+        }
+
+        if (attempt == 3)
+        {
+            qDebug() << "whoops something happened ...";
+            return;
+        }
+
+        // Get the name of the template before freeing the memory
+        char *method;
+        method = new char[14];
+        strcpy(method, methods[n-1]);
+
+        // Free some memory
+        for (int i=0; i<n; i++)
+        {
+            free(classes[i]);
+            free(names[i]);
+            free(methods[i]);
+            free(infos[i]);
+        }
+        free(classes);
+        free(names);
+        free(methods);
+        free(infos);
+
+        // There exists at least one connection
+        int got;
+        char *nombres[NXPA];
+        char *msgs[NXPA];
+
+        // Format the commands to be send to DS9
+        QString s1 = "file " + orig;
+        QString s2 = "file " + exported;
+
+        char *orig, *exported;
+        orig = new char[s1.toStdString().size()+1];
+        exported = new char[s2.toStdString().size()+1];
+
+        strcpy(orig, s1.toStdString().c_str());
+        strcpy(exported, s2.toStdString().c_str());
+
+        // Control DS9 baby!!!
         got = XPASet(xpa, method, orig, nullptr, nullptr, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, "frame new", "", NULL, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, exported, "", NULL, 0, nombres, msgs, NXPA);
@@ -134,22 +134,22 @@ void DS9Thread::run()
         got = XPASet(xpa, method, "match frames wcs", "", NULL, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, "mode crosshair", "", NULL, 0, nombres, msgs, NXPA);
         got = XPASet(xpa, method, "lock crosshair wcs", "", NULL, 0, nombres, msgs, NXPA);
-		got = XPASet(xpa, method, "zoom to fit", "", NULL, 0, nombres, msgs, NXPA);
-		got = XPASet(xpa, method, "frame next", "", NULL, 0, nombres, msgs, NXPA);
-		got = XPASet(xpa, method, "zoom to fit", "", NULL, 0, nombres, msgs, NXPA);
-		qDebug() << nombres[0];
-		qDebug() << msgs[0];
-		
-		
-		// Close the XPA persistent connection
-		XPAClose(xpa);
-		free(orig);
-		free(exported);
-		free(method);
-	}
-	else
-	{
-		// DS9 has not started, provide user with feedback
-		qDebug() << "whoops something happened ...";
-	}
+        got = XPASet(xpa, method, "zoom to fit", "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, "frame next", "", NULL, 0, nombres, msgs, NXPA);
+        got = XPASet(xpa, method, "zoom to fit", "", NULL, 0, nombres, msgs, NXPA);
+        qDebug() << nombres[0];
+        qDebug() << msgs[0];
+
+
+        // Close the XPA persistent connection
+        XPAClose(xpa);
+        free(orig);
+        free(exported);
+        free(method);
+    }
+    else
+    {
+        // DS9 has not started, provide user with feedback
+        qDebug() << "whoops something happened ...";
+    }
 }
