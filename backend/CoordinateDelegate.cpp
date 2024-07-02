@@ -26,119 +26,119 @@
 CoordinateDelegate::CoordinateDelegate(GraphicsScene *s1, GraphicsScene *s2, QObject *parent)
 : QItemDelegate(parent)
 {
-	fitsScene = s1;
-	epoScene = s2;
+    fitsScene = s1;
+    epoScene = s2;
 }
 
 
 QWidget* CoordinateDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
-	double maxValue;
-	
-	switch (index.column()) {
-		case 0:
-			maxValue = fitsScene->width();
-			break;
-		case 1:
-			maxValue = fitsScene->height();
-			break;
-		case 2:
-			maxValue = epoScene->width();
-			break;
-		case 3:
-			maxValue = epoScene->height();
-			break;
-	}
-	editor->setRange(-maxValue, maxValue);
-	return editor;
+    QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
+    double maxValue;
+
+    switch (index.column()) {
+        case 0:
+            maxValue = fitsScene->width();
+            break;
+        case 1:
+            maxValue = fitsScene->height();
+            break;
+        case 2:
+            maxValue = epoScene->width();
+            break;
+        case 3:
+            maxValue = epoScene->height();
+            break;
+    }
+    editor->setRange(-maxValue, maxValue);
+    return editor;
 }
 
 void CoordinateDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	QItemDelegate::paint(painter, option, index);
+    QItemDelegate::paint(painter, option, index);
 }
 
 void CoordinateDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-	// Cast the model as a CoordinateModel
-	const CoordinateModel *model = qobject_cast<const CoordinateModel*> (index.model());
-	QVariant var = model->data(index, Qt::DisplayRole);
-	double value = var.toDouble();
-	
-	// Cast the editor as a double spin box
-	QDoubleSpinBox *spinBox = qobject_cast<QDoubleSpinBox*>(editor);
-	spinBox->setDecimals(11);
-	spinBox->setValue(value);
+    // Cast the model as a CoordinateModel
+    const CoordinateModel *model = qobject_cast<const CoordinateModel*> (index.model());
+    QVariant var = model->data(index, Qt::DisplayRole);
+    double value = var.toDouble();
+
+    // Cast the editor as a double spin box
+    QDoubleSpinBox *spinBox = qobject_cast<QDoubleSpinBox*>(editor);
+    spinBox->setDecimals(11);
+    spinBox->setValue(value);
 }
 
 void CoordinateDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
-{	
-	
-	// Boolean to determine corresponding scene of data
-	bool scene;
-	bool broadcast = true;
-	
-	// Cast the editor as a double spin box
-	QDoubleSpinBox *spinBox = qobject_cast<QDoubleSpinBox*>(editor);
-	spinBox->interpretText();
+{
 
-	// Get the value from the editor
-	double value = spinBox->value();
-	
-	// Cast the model as a CoordinateModel and set the data
-	CoordinateModel *m = qobject_cast<CoordinateModel*>(model);
-	
-	// Use the QModelIndex to locate the corresponding QPointF in the data model
-	QList<QPointF> refCoords = m->refCoords;
-	QList<QPointF> epoCoords = m->epoCoords;
+    // Boolean to determine corresponding scene of data
+    bool scene;
+    bool broadcast = true;
 
-	QPointF oldPosition;
-	QPointF newPosition;
-	
-	switch (index.column()) {
-		case 0:
-			oldPosition = refCoords.at(index.row());
-			newPosition = QPointF(oldPosition);
-			newPosition.setX(value);
-			scene = true;
-			break;
-		case 1:
-			oldPosition = refCoords.at(index.row());
-			newPosition = QPointF(oldPosition);
-			newPosition.setY(value);
-			scene = true;
-			break;
-		case 2:
-			oldPosition = epoCoords.at(index.row());
-			if (oldPosition == QPointF(-1, -1))
-				broadcast = false;
-			newPosition = QPointF(oldPosition);
-			newPosition.setX(value);
-			scene = false;
-			break;
-		case 3:
-			oldPosition = epoCoords.at(index.row());
-			if (oldPosition == QPointF(-1, -1))
-				broadcast = false;
-			newPosition = QPointF(oldPosition);
-			newPosition.setY(value);
-			scene = false;
-			break;
-	}
-	
-	// Broadcast change of data
-	if (broadcast)
-	{
-		QModelIndex indx = QModelIndex(index);
-		if (scene == true)
-			emit itemMoved(fitsScene, newPosition, oldPosition, &indx);
-		else
-			emit itemMoved(epoScene, newPosition, oldPosition, &indx);
-	}
+    // Cast the editor as a double spin box
+    QDoubleSpinBox *spinBox = qobject_cast<QDoubleSpinBox*>(editor);
+    spinBox->interpretText();
+
+    // Get the value from the editor
+    double value = spinBox->value();
+
+    // Cast the model as a CoordinateModel and set the data
+    CoordinateModel *m = qobject_cast<CoordinateModel*>(model);
+
+    // Use the QModelIndex to locate the corresponding QPointF in the data model
+    QList<QPointF> refCoords = m->refCoords;
+    QList<QPointF> epoCoords = m->epoCoords;
+
+    QPointF oldPosition;
+    QPointF newPosition;
+
+    switch (index.column()) {
+        case 0:
+            oldPosition = refCoords.at(index.row());
+            newPosition = QPointF(oldPosition);
+            newPosition.setX(value);
+            scene = true;
+            break;
+        case 1:
+            oldPosition = refCoords.at(index.row());
+            newPosition = QPointF(oldPosition);
+            newPosition.setY(value);
+            scene = true;
+            break;
+        case 2:
+            oldPosition = epoCoords.at(index.row());
+            if (oldPosition == QPointF(-1, -1))
+                broadcast = false;
+            newPosition = QPointF(oldPosition);
+            newPosition.setX(value);
+            scene = false;
+            break;
+        case 3:
+            oldPosition = epoCoords.at(index.row());
+            if (oldPosition == QPointF(-1, -1))
+                broadcast = false;
+            newPosition = QPointF(oldPosition);
+            newPosition.setY(value);
+            scene = false;
+            break;
+    }
+
+    // Broadcast change of data
+    if (broadcast)
+    {
+        QModelIndex indx = QModelIndex(index);
+        if (scene == true)
+            emit itemMoved(fitsScene, newPosition, oldPosition, &indx);
+        else
+            emit itemMoved(epoScene, newPosition, oldPosition, &indx);
+    }
 }
 
 QSize CoordinateDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	QItemDelegate::sizeHint(option, index);
+    QItemDelegate::sizeHint(option, index);
 }
