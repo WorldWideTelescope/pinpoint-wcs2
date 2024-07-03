@@ -39,8 +39,8 @@ public:
 
 	QList<QPointF> *refCoords;
 	QList<QPointF> *epoCoords;
-	double width;
-	double height;
+	int epo_width;
+	int epo_height;
 	Vector2d crpix;
 	Vector2d crval;
 	Matrix2d cdmatrix;
@@ -53,7 +53,13 @@ public:
 
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-	ComputeWCS(QList<QPointF> *ref, QList<QPointF> *epo, struct WorldCoor *refWCS, double w, double h);
+	ComputeWCS(
+		QList<QPointF> *ref,
+		QList<QPointF> *epo,
+		struct WorldCoor *refWCS,
+		int epo_width,
+		int epo_height
+	);
 	~ComputeWCS() override;
 	struct WorldCoor* makeTargetWCS();
 public slots:
@@ -64,6 +70,7 @@ signals:
 	void nowcs();
 
 private:
+	QPointF fitsPixelCoordinate(int i);
 	void computeResiduals(int numPoints);
 
 	struct WorldCoor *referenceWCS;

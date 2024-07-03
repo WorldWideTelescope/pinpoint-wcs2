@@ -33,19 +33,19 @@ ComputeWCS::ComputeWCS(
     QList<QPointF> *ref,
     QList<QPointF> *epo,
     struct WorldCoor *refWCS,
-    double w,
-    double h
+    int epo_width,
+    int epo_height
 ) {
     // Input coordinate convention:
-    // ref (FITS): JPEG-like parity, where Y = 0 is the top!
+    // ref (FITS): see fitsPixelCoordinate() below
     // epo (JPEG): JPEG-like, Y = 0 is the top.
 
     refCoords = ref;
     epoCoords = epo;
     referenceWCS = refWCS;
     epoWCS = false;
-    width = w;
-    height = h;
+    this->epo_width = epo_width;
+    this->epo_height = epo_height;
     downsample_factor = 1;
     rms_x = 0.0;
     rms_y = 0.0;
@@ -54,6 +54,31 @@ ComputeWCS::ComputeWCS(
 
 ComputeWCS::~ComputeWCS() {}
 
+
+QPointF
+ComputeWCS::fitsPixelCoordinate(int i)
+{
+    // Convert our "refCoords" to true FITS pixel coordinates. In FITS, the
+    // center of the first pixel of a 2D image has coordinate (1,1); the pixel's
+    // edges go from 0.5 to 1.5. Meanwhile, we're passed coordinates where the
+    // pixel centers are half-integers, *and* there has been a flip of the Y
+    // axis to match the usual JPEG-like ordering: y = 0.5 denotes the top row
+    // of pixels in the image, which is "really" the row with `y = image_height`
+    // according to FITS.
+    //
+    // Furthermore, if downsampling is active, the coordinates that we have been
+    // given are all referenced to a version of the image that has been
+    // downsampled by an integer factor. This should be straightforward to
+    // handle, but there appears to be something wonky about how the coordinates
+    // are computed elsewhere in the program. (For instance, the circle
+    // indicating the selected FITS point is not precisely centered on the
+    // selected point!) In order to get accurate results for different
+    // downsample factors, I need to use the following expressions.
+    QPointF raw = refCoords->at(i);
+    float x = downsample_factor * (raw.x() - 0.5) + 1;
+    float y = downsample_factor * (raw.y() - 0.5) + 1;
+    return QPointF(x, referenceWCS->nypix - y);
+}
 
 void
 ComputeWCS::computeTargetWCS()
@@ -81,7 +106,7 @@ ComputeWCS::computeTargetWCS()
 
     for (int i = 0; i < numPoints; i++)
     {
-        QPointF p_fits = refCoords->at(i);
+        QPointF p_fits = fitsPixelCoordinate(i);
         QPointF p_epo = epoCoords->at(i);
 
         std::cout << "P: " << p_fits.x() << "\t" << p_fits.y() << "\t" << p_epo.x() << "\t" << p_epo.y() << "\n";
@@ -89,7 +114,7 @@ ComputeWCS::computeTargetWCS()
         basis << p_epo.x(), p_epo.y(), 1;
         matrix += basis * basis.transpose();
         xvector += p_fits.x() * basis;
-        yvector += (height - p_fits.y()) * basis; // See above; change refCoords Y convention to FITS-like
+        yvector += p_fits.y() * basis;
     }
 
     Vector3d xcoeff = matrix.lu().solve(xvector);
@@ -158,8 +183,8 @@ struct WorldCoor *
 ComputeWCS::makeTargetWCS()
 {
     struct WorldCoor *targetWCS = wcskinit(
-        width,
-        height,
+        epo_width,
+        epo_height,
         (char *) "RA---TAN",
         (char *) "DEC--TAN",
         crpix(0),

@@ -384,12 +384,12 @@ void ExportWCS::exportXMP()
                 QString crval1 = QString("%1").arg(computewcs->crval(0), 0, 'f', 11);
                 QString crval2 = QString("%1").arg(computewcs->crval(1), 0, 'f', 11);
                 QString crpix1 = QString("%1").arg(computewcs->crpix(0), 0, 'f', 11);
-                QString crpix2 = QString("%1").arg(computewcs->height - computewcs->crpix(1), 0, 'f', 11);
+                QString crpix2 = QString("%1").arg(computewcs->epo_height - computewcs->crpix(1), 0, 'f', 11);
                 QString scale1 = QString("%1").arg(-1*computewcs->scale, 0, 'f', 11);
                 QString scale2 = QString("%1").arg(computewcs->scale, 0, 'f', 11);
                 QString orientation = QString("%1").arg(computewcs->orientation, 0, 'f', 11);
-                QString width = QString("%1").arg(computewcs->width, 0, 'f', 2);
-                QString height = QString("%1").arg(computewcs->height, 0, 'f', 2);
+                QString width = QString("%1").arg(computewcs->epo_width);
+                QString height = QString("%1").arg(computewcs->epo_height);
                 QString spatialnotes = QString("World Coordinate System resolved using PinpointWCS %1 revision %2 by the Chandra X-ray Center").arg(VERSION).arg(REVISION);
 
                 // Begin modifying AVM
@@ -544,12 +544,12 @@ void ExportWCS::exportAVM(bool detailed)
                 QString crval1 = QString("%1").arg(computewcs->crval(0), 0, 'f', 11);
                 QString crval2 = QString("%1").arg(computewcs->crval(1), 0, 'f', 11);
                 QString crpix1 = QString("%1").arg(computewcs->crpix(0), 0, 'f', 11);
-                QString crpix2 = QString("%1").arg(computewcs->height - computewcs->crpix(1), 0, 'f', 11);
+                QString crpix2 = QString("%1").arg(computewcs->epo_height - computewcs->crpix(1), 0, 'f', 11);
                 QString scale1 = QString("%1").arg(-1*computewcs->scale, 0, 'f', 11);
                 QString scale2 = QString("%1").arg(computewcs->scale, 0, 'f', 11);
                 QString orientation = QString("%1").arg(computewcs->orientation, 0, 'f', 11);
-                QString width = QString("%1").arg(computewcs->width, 0, 'f', 2);
-                QString height = QString("%1").arg(computewcs->height, 0, 'f', 2);
+                QString width = QString("%1").arg(computewcs->epo_width);
+                QString height = QString("%1").arg(computewcs->epo_height);
                 QString spatialnotes = QString("World Coordinate System resolved using PinpointWCS %1 revision %2 by the Chandra X-ray Center").arg(VERSION).arg(REVISION);
 
                 // Add the pixel coordinates to Spatial.Notes
@@ -565,8 +565,8 @@ void ExportWCS::exportAVM(bool detailed)
                     }
 
                     // Get the center pixel (for STScI)
-                    QString center_x = QString("\n%1").arg(computewcs->width/2., 0, 'f', 2);
-                    QString center_y = QString("%1").arg(computewcs->height/2., 0, 'f', 2);
+                    QString center_x = QString("\n%1").arg(computewcs->epo_width/2., 0, 'f', 2);
+                    QString center_y = QString("%1").arg(computewcs->epo_height/2., 0, 'f', 2);
                     QString center_ra = QString("FIXME"); // QString("%1").arg(computewcs->centerRA, 0, 'f', 11);
                     QString center_dec = QString("FIXME"); // QString("%1").arg(computewcs->centerDec, 0, 'f', 11);
 
