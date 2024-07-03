@@ -742,7 +742,7 @@ void MainWindow::enableExport()
                 ui.actionXMP_Packet->setEnabled(true);
 
         // Create EPO WCS object and load WCS to panel and export object
-        epoImage->wcs = computewcs->initTargetWCS();
+        epoImage->wcs = computewcs->makeTargetWCS();
         epoWcsInfoPanel->loadWCS(epoImage->wcs, computewcs->rms_x, computewcs->rms_y);
         exportwcs->setWCS(epoImage->wcs);
     }
@@ -764,7 +764,7 @@ void MainWindow::enableExport()
     }
 
     // Enable prediction of EPO coordinate if mapping exists
-    if (computewcs->mappingExists && epoScene->clickable)
+    if (computewcs->epoWCS && epoScene->clickable)
         ui.actionFit_Point->setEnabled(true);
     else
         ui.actionFit_Point->setEnabled(false);
@@ -777,8 +777,8 @@ void MainWindow::computeWCS()
     computewcs->computeTargetWCS();
     if (computewcs->epoWCS)
     {
-        epoImage->wcs = computewcs->initTargetWCS();
-        epoWcsInfoPanel->loadWCS(computewcs->initTargetWCS());
+        epoImage->wcs = computewcs->makeTargetWCS();
+        epoWcsInfoPanel->loadWCS(computewcs->makeTargetWCS());
     }
     else
     {

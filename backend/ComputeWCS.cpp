@@ -29,28 +29,26 @@ using namespace std;
 #include "PinpointWCSUtils.h"
 
 
-ComputeWCS::ComputeWCS(QList<QPointF> *ref, QList<QPointF> *epo, struct WorldCoor *refWCS, double w, double h)
-{
+ComputeWCS::ComputeWCS(
+    QList<QPointF> *ref,
+    QList<QPointF> *epo,
+    struct WorldCoor *refWCS,
+    double w,
+    double h
+) {
+    // Input coordinate convention:
+    // ref (FITS): JPEG-like parity, where Y = 0 is the top!
+    // epo (JPEG): JPEG-like, Y = 0 is the top.
+
     refCoords = ref;
     epoCoords = epo;
     referenceWCS = refWCS;
     epoWCS = false;
-    mappingExists = false;
     width = w;
     height = h;
+    downsample_factor = 1;
     rms_x = 0.0;
     rms_y = 0.0;
-    center_x = 0.0;
-    center_y = 0.0;
-    centerRA = 0.0;
-    centerDec = 0.0;
-        M = 1;
-
-    // Flip matrix
-    flip << 0, 1, 1, 0;
-
-    // Vector to be used to compute offsets
-    v << 1000.0, 0;
 }
 
 
@@ -58,218 +56,132 @@ ComputeWCS::~ComputeWCS() {}
 
 
 void
-ComputeWCS::initializeMatrixVectors()
-{
-    int size = 3;
-    basis = VectorXd::Zero(size);
-    matrix = MatrixXd::Zero(size, size);
-    xvector = VectorXd::Zero(size);
-    yvector = VectorXd::Zero(size);
-    xcoeff = VectorXd::Zero(size);
-    ycoeff = VectorXd::Zero(size);
-}
-
-
-void
 ComputeWCS::computeTargetWCS()
 {
-    int numPoints;
+    int numPoints = refCoords->size();
 
-    if (epoCoords->size() >= 3)
-    {
-        // Determine the number of points to use
-        if (epoCoords->last() == QPointF(-1, -1))
-        {
-            if (epoCoords->size() == 3)
-            {
-                epoWCS = false;
-                emit nowcs();
-                return;
-            }
-            numPoints = refCoords->size() - 1;
-        }
-        else
-            numPoints = refCoords->size();
+    if (numPoints > 0 && epoCoords->last() == QPointF(-1, -1)) {
+        numPoints--;
+    }
 
-        // Compute matrix and vectors
-        computeSums(numPoints);
-
-        // Solve matrix equation for mapping
-        plateSolution();
-
-        // Compute residuals
-        computeResiduals(numPoints);
-
-        // Bin the reference pixel not sure why?
-        double xrefpix = (referenceWCS->xrefpix - 1) / M + 1;
-        double yrefpix = (referenceWCS->yrefpix - 1) / M + 1;
-
-        // Declare the CRPIX for the EPO image to be the center pixel
-        crpix = fitsToEpo(xrefpix, yrefpix);
-
-        // Determine corresponding pixel in the FITS image in QGraphicsScene space
-        Vector2d ref0;
-        ref0 << referenceWCS->xrefpix, referenceWCS->yrefpix;
-
-        // Transform from QGraphicsScene pixels to FITS pixels
-        ref0 = gsPix2fitsPix(ref0);
-        Vector2d xieta_0 = xi_eta(ref0);
-
-        // Determine the celestial coordinates for ref0
-        pix2wcs(referenceWCS, ref0[0], ref0[1], &crval[0], &crval[1]);
-
-        // Coordinate axis flipped, need to make adjustment
-        // TODO: Find sample data to test this with
-        if (referenceWCS->coorflip == 1)
-            crval = flip*crval;
-
-        // Compute offset in x direction
-        Vector2d fitscrpix1 = epoToFits(crpix + v);
-
-        // Unbin the pixel
-        Vector2d blah1;
-        blah1 << (M * (fitscrpix1[0] - 1) + 1), (M * (fitscrpix1[1] - 1) + 1);
-        Vector2d ref_x = gsPix2fitsPix(blah1);
-        Vector2d xieta_x = xi_eta(ref_x);
-
-        // Compute offset in y direction
-         Vector2d fitscrpix2 = epoToFits(crpix + flip * v);
-
-        // Unbin the pixel
-        Vector2d blah2;
-        blah2 << (M * (fitscrpix2[0] - 1) + 1), (M * (fitscrpix2[1] - 1) + 1);
-        Vector2d ref_y = gsPix2fitsPix(blah2);
-        Vector2d xieta_y = xi_eta(ref_y);
-
-        // Compute the cd matrix
-        cdmatrix(0) = (xieta_x(0) - xieta_0(0)) / v(0);
-        cdmatrix(1) = (xieta_0(0) - xieta_y(0)) / v(0);
-        cdmatrix(2) = (xieta_x(1) - xieta_0(1)) / v(0);
-        cdmatrix(3) = (xieta_0(1) - xieta_y(1)) / v(0);
-
-        // Calculate the scale in units of arcseconds
-        scale = sqrt(pow(xieta_y(0) - xieta_0(0), 2) + pow(xieta_y(1) - xieta_0(1), 2)) / v(0);
-
-        // Calculate the orientation
-        orientation = atan2(xieta_y(0) - xieta_0(0), -(xieta_y(1) - xieta_0(1))) * (180. / M_PI);
-
-        // EPO WCS calculated!!
-        epoWCS = true;
-        emit wcs();
+    if (numPoints < 3) {
+        epoWCS = false;
+        emit nowcs();
         return;
     }
 
-    epoWCS = false;
-    emit nowcs();
+    // OK, we can solve! First step: compute the affine transformation matrix.
+    //
+    // TODO: ensure that pixel-numbering conventions are all correct.
+
+    Vector3d basis = Vector3d::Zero();
+    Matrix3d matrix = Matrix3d::Zero();
+    Vector3d xvector = Vector3d::Zero();
+    Vector3d yvector = Vector3d::Zero();
+
+    for (int i = 0; i < numPoints; i++)
+    {
+        QPointF p_fits = refCoords->at(i);
+        QPointF p_epo = epoCoords->at(i);
+
+        std::cout << "P: " << p_fits.x() << "\t" << p_fits.y() << "\t" << p_epo.x() << "\t" << p_epo.y() << "\n";
+
+        basis << p_epo.x(), p_epo.y(), 1;
+        matrix += basis * basis.transpose();
+        xvector += p_fits.x() * basis;
+        yvector += (height - p_fits.y()) * basis; // See above; change refCoords Y convention to FITS-like
+    }
+
+    Vector3d xcoeff = matrix.lu().solve(xvector);
+    Vector3d ycoeff = matrix.lu().solve(yvector);
+    Matrix3d epo2fits = Matrix3d::Identity();
+    epo2fits.row(0) = xcoeff;
+    epo2fits.row(1) = ycoeff;
+
+    Matrix3d fits2epo = epo2fits.inverse().eval();
+
+    // Construct information for the desired WCS.
+    //
+    // CRVAL is the same as the reference image.
+
+    crval(0) = referenceWCS->crval[0];
+    crval(1) = referenceWCS->crval[1];
+
+    // CRPIX is the pixel from the reference image, mapped
+    // to the EPO image.
+
+    Vector3d vwork = Vector3d();
+    vwork << referenceWCS->crpix[0], referenceWCS->crpix[1], 1;
+    vwork = fits2epo * vwork;
+    crpix(0) = vwork[0];
+    crpix(1) = vwork[1];
+
+    // CD matrix concatenates the transforms. Since the CD matrix is of
+    // contravariant type, we have to multiply it by epo2fits, not fits2epo.
+
+    Matrix2d mwork = Matrix2d();
+    cdmatrix << referenceWCS->cd[0], referenceWCS->cd[1], referenceWCS->cd[2], referenceWCS->cd[3];
+    mwork << epo2fits(0,0), epo2fits(0,1), epo2fits(1,0), epo2fits(1,1);
+    cdmatrix = mwork * cdmatrix;
+
+    std::cout << "crval: " << crval << std::endl;
+    std::cout << "crpix: " << crpix << std::endl;
+    std::cout << "CD: " << cdmatrix << std::endl;
+
+    // Finally, convert the WCS information to AVM/WWT-style. There are
+    // solutions that can be expressed in WCS that cannot be captured by AVM.
+
+    double cd_det = cdmatrix.determinant();
+    int cd_sign = cd_det < 0 ? -1 : 1;
+    double rotation = std::atan2(-cd_sign * cdmatrix(0,1), -cdmatrix(1,1));
+    double scale_x = std::hypot(cdmatrix(0,0), cdmatrix(0,1));
+    double scale_y = std::hypot(cdmatrix(1,0), cdmatrix(1,1));
+
+    std::cout << "det: " << cd_det << std::endl;
+    std::cout << "rot: " << (rotation * 180/3.14159) << std::endl;
+    std::cout << "scale_x: " << scale_x << std::endl;
+    std::cout << "scale_y: " << scale_y << std::endl;
+
+    // TODO: safety
+
+    orientation = rotation * 180. / M_PI;
+    scale = 0.5 * (scale_x + scale_y);
+
+    // Done.
+
+    epoWCS = true;
+    emit wcs();
 }
 
 
 struct WorldCoor *
-ComputeWCS::initTargetWCS()
+ComputeWCS::makeTargetWCS()
 {
-    struct WorldCoor *targetWCS;
-    double *cd;
-
-    cd = (double *) malloc(4 * sizeof(double));
-    cd[0] = cdmatrix(0);
-    cd[1] = cdmatrix(1);
-    cd[2] = cdmatrix(2);
-    cd[3] = cdmatrix(3);
-
-    // Determine the reference image's reference pixel from the frame of reference of the EPO image
-    double crpix_x = (referenceWCS->crpix[0] - 1) / M + 1;
-    double crpix_y = (referenceWCS->crpix[1] - 1) / M + 1;
-    crpix = fitsToEpo(crpix_x, crpix_y);
-
-    targetWCS = wcskinit(
+    struct WorldCoor *targetWCS = wcskinit(
         width,
         height,
         (char *) "RA---TAN",
         (char *) "DEC--TAN",
         crpix(0),
-        height - crpix(1) + 1,
-        referenceWCS->crval[0],
-        referenceWCS->crval[1],
-        cd,
-        0.0,
-        0.0,
-        0.0,
+        crpix(1),
+        crval(0),
+        crval(1),
+        cdmatrix.data(),
+        0.0, // cdelt1, unused if CD matrix is defined
+        0.0, // cdelt2, ditto
+        0.0, // crota, ditto
         referenceWCS->equinox,
         referenceWCS->epoch
     );
 
-    free(cd);
-
-    // Set output coordinates
     wcsoutinit(targetWCS, (char *) "FK5");
-
-    // Calculate the coordinates for the center of the image (for the folks at STScI)
-    // Center pixel transforms on to itself (no need to apply QGraphicsScene pixels -> FITS pixels transformation!)
-    center_x = 0.5 * width + 0.5;
-    center_y = 0.5 * height + 0.5;
-    pix2wcs(targetWCS, center_x, center_y, &centerRA, &centerDec);
-    center_x = 0.5 * height;
-    center_y = 0.5 * width;
     return targetWCS;
-}
-
-
-Vector2d ComputeWCS::xi_eta(double xpix, double ypix)
-{
-    const double pix[2] = {xpix, ypix};
-    double interworld[2];
-    linrev(pix, &(referenceWCS->lin), interworld);
-
-    Vector2d intermediate(interworld[0], interworld[1]);
-    return intermediate;
-}
-
-
-Vector2d ComputeWCS::xi_eta(Vector2d pixel)
-{
-    const double pix[2] = {pixel(0), pixel(1)};
-    double interworld[2];
-    linrev(pix, &(referenceWCS->lin), interworld);
-
-    Vector2d intermediate(interworld[0], interworld[1]);
-    return intermediate;
-}
-
-//calcuate the vectors and matrix from the selected points
-void ComputeWCS::computeSums(int numPoints)
-{
-    using namespace std;
-    // Dynamically initialize matrix and vectors
-    initializeMatrixVectors();
-
-    for (int ii=0; ii < numPoints; ii++)
-    {
-        QPointF point1 = refCoords->at(ii);
-        QPointF point2 = epoCoords->at(ii);
-
-        // Set the base [xfits,yepo,1]
-        basis << point2.x(), point2.y(), 1;
-
-        // Generate matrix and vectors
-        matrix += basis * basis.transpose(); //1x3 * 3x1 = scalar
-        xvector += point1.x() * basis;  //Multiply by the basis
-        yvector += point1.y() * basis;
-    }
-}
-
-//solving the linear sstem of matrix x vector
-void ComputeWCS::plateSolution()
-{
-    // Solve the linear system
-    xcoeff = matrix.lu().solve(xvector);
-    ycoeff = matrix.lu().solve(yvector);
-
-    mappingExists = true;
 }
 
 
 void ComputeWCS::computeResiduals(int numPoints)
 {
+#if 0
     // Initialize some variables
     double sumn = 0;
     double sumx2 = 0;
@@ -293,39 +205,16 @@ void ComputeWCS::computeResiduals(int numPoints)
 
     rms_x = sqrt(sumx2 / sumn);
     rms_y = sqrt(sumy2 / sumn);
+#else
+    rms_x = rms_y = 0;
+#endif
 }
 
 
-QPointF ComputeWCS::fitsToEpo(QPointF *p)
+Vector2d
+ComputeWCS::fitsToEpo(double x, double y)
 {
-    // TODO: Check that bd-af is nonzero
-    QPointF epoCoord;
-    float x0, y0;
-
-    // Create matrix of coeffients
-    Matrix2d m;
-    m << xcoeff(0), xcoeff(1), ycoeff(0), ycoeff(1);
-
-    // Take the inverse
-    m = m.inverse().eval();
-    Vector3d xinverse;
-    Vector3d yinverse;
-    xinverse << m(0,0), m(0,1), xcoeff[2];
-    yinverse << m(1,0), m(1,1), ycoeff[2];
-
-    // Find the difference
-    x0 = p->x() - xinverse[2];
-    y0 = p->y() - yinverse[2];
-
-    epoCoord.setX(xinverse[0] * x0 + xinverse[1] * y0);
-    epoCoord.setY(yinverse[0] * x0 + yinverse[1] * y0);
-
-    return epoCoord;
-}
-
-
-Vector2d ComputeWCS::fitsToEpo(double x, double y)
-{
+#if 0
     // TODO: Check that bd-af is nonzero
     Vector2d epoCoord;
     float x0, y0;
@@ -347,54 +236,22 @@ Vector2d ComputeWCS::fitsToEpo(double x, double y)
 
     epoCoord << xinverse[0] * x0 + xinverse[1] * y0, yinverse[0] * x0 + yinverse[1] * y0;
     return epoCoord;
+#else
+    return Vector2d::Zero();
+#endif
 }
 
 
-Vector2d ComputeWCS::epoToFits(QPointF *p)
+QPointF
+ComputeWCS::fitsToEpo(QPointF *p_fits)
 {
-    Vector2d coordinate;
-
-    // x_r = a*x + b*y + c
-    // y_r = d*x + f*b + g
-    coordinate(0) = xcoeff[0] * p->x() + xcoeff[1] * p->y() + xcoeff[2];
-    coordinate(1) = ycoeff[0] * p->x() + ycoeff[1] * p->y() + ycoeff[2];
-    return coordinate;
+    Vector2d p_epo = fitsToEpo(p_fits->x(), p_fits->y());
+    return QPointF(p_epo[0], p_epo[1]);
 }
 
 
-Vector2d ComputeWCS::epoToFits(double x, double y)
+void
+ComputeWCS::setDownsampleFactor(int factor)
 {
-    Vector2d coordinate;
-
-    coordinate(0) = xcoeff[0] * x + xcoeff[1] * y + xcoeff[2];
-    coordinate(1) = ycoeff[0] * x + ycoeff[1] * y + ycoeff[2];
-
-    return coordinate;
-}
-
-Vector2d ComputeWCS::epoToFits(Vector2d p)
-{
-    Vector2d coordinate;
-
-    coordinate(0) = xcoeff[0] * p[0] + xcoeff[1] * p[1] + xcoeff[2];
-    coordinate(1) = ycoeff[0] * p[0] + ycoeff[1] * p[1] + ycoeff[2];
-
-    return coordinate;
-}
-
-
-Vector2d ComputeWCS::gsPix2fitsPix(Vector2d p)
-{
-    Vector2d coordinate;
-
-    // Transform from QGraphicsScene pixels to FITS pixels
-    coordinate(0) = p[0];
-    coordinate(1) = referenceWCS->nypix - p[1];//referenceWCS->nypix = number of pixels in the Y direction
-
-    return coordinate;
-}
-
-void ComputeWCS::setDownsampleFactor(int factor)
-{
-    M = factor;
+    downsample_factor = factor;
 }

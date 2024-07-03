@@ -381,10 +381,10 @@ void ExportWCS::exportXMP()
 
                 // Initialize QStrings to format the WCS data
                 QString equinox = QString("%1").arg(wcs->equinox, 0, 'f', 1);
-                QString crval1 = QString("%1").arg(wcs->xref, 0, 'f', 11);
-                QString crval2 = QString("%1").arg(wcs->yref, 0, 'f', 11);
-                QString crpix1 = QString("%1").arg(wcs->xrefpix - 0.5, 0, 'f', 11);
-                QString crpix2 = QString("%1").arg(wcs->yrefpix + 0.5, 0, 'f', 11);
+                QString crval1 = QString("%1").arg(computewcs->crval(0), 0, 'f', 11);
+                QString crval2 = QString("%1").arg(computewcs->crval(1), 0, 'f', 11);
+                QString crpix1 = QString("%1").arg(computewcs->crpix(0), 0, 'f', 11);
+                QString crpix2 = QString("%1").arg(computewcs->height - computewcs->crpix(1), 0, 'f', 11);
                 QString scale1 = QString("%1").arg(-1*computewcs->scale, 0, 'f', 11);
                 QString scale2 = QString("%1").arg(computewcs->scale, 0, 'f', 11);
                 QString orientation = QString("%1").arg(computewcs->orientation, 0, 'f', 11);
@@ -541,10 +541,10 @@ void ExportWCS::exportAVM(bool detailed)
 
                 // Initialize QStrings to format the WCS data
                 QString equinox = QString("%1").arg(wcs->equinox, 0, 'f', 1);
-                QString crval1 = QString("%1").arg(wcs->xref, 0, 'f', 11);
-                QString crval2 = QString("%1").arg(wcs->yref, 0, 'f', 11);
-                QString crpix1 = QString("%1").arg(wcs->xrefpix - 0.5, 0, 'f', 11);
-                QString crpix2 = QString("%1").arg(wcs->yrefpix + 0.5, 0, 'f', 11);
+                QString crval1 = QString("%1").arg(computewcs->crval(0), 0, 'f', 11);
+                QString crval2 = QString("%1").arg(computewcs->crval(1), 0, 'f', 11);
+                QString crpix1 = QString("%1").arg(computewcs->crpix(0), 0, 'f', 11);
+                QString crpix2 = QString("%1").arg(computewcs->height - computewcs->crpix(1), 0, 'f', 11);
                 QString scale1 = QString("%1").arg(-1*computewcs->scale, 0, 'f', 11);
                 QString scale2 = QString("%1").arg(computewcs->scale, 0, 'f', 11);
                 QString orientation = QString("%1").arg(computewcs->orientation, 0, 'f', 11);
@@ -567,8 +567,8 @@ void ExportWCS::exportAVM(bool detailed)
                     // Get the center pixel (for STScI)
                     QString center_x = QString("\n%1").arg(computewcs->width/2., 0, 'f', 2);
                     QString center_y = QString("%1").arg(computewcs->height/2., 0, 'f', 2);
-                    QString center_ra = QString("%1").arg(computewcs->centerRA, 0, 'f', 11);
-                    QString center_dec = QString("%1").arg(computewcs->centerDec, 0, 'f', 11);
+                    QString center_ra = QString("FIXME"); // QString("%1").arg(computewcs->centerRA, 0, 'f', 11);
+                    QString center_dec = QString("FIXME"); // QString("%1").arg(computewcs->centerDec, 0, 'f', 11);
 
                     QString centerpix = QString("\nCenter Pixel Coordinates:%1\t%2\n%3\t%4").arg(center_x).arg(center_ra).arg(center_y).arg(center_dec);
                     spatialnotes.append(centerpix);
