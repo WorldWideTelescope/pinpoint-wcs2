@@ -17,21 +17,21 @@
  *
  */
 
-
 #ifndef EXPORTWCS_H
 #define EXPORTWCS_H
 
 #include <QPixmap>
 #include <QString>
 #include <QFileDialog>
+
 #include <libwcs/wcs.h>
+
 #include "EpoImage.h"
 #include "ComputeWCS.h"
 
 #define AVM_VERSION "1.2"
 
 class ExportWCS : public QObject {
-
     Q_OBJECT
 
 public:
@@ -53,7 +53,6 @@ signals:
     void exportResults(bool success);
 
 private:
-    // Attributes
     QPixmap *pixmap;
     QString *filename;
     struct WorldCoor *wcs;
@@ -63,4 +62,3 @@ private:
 };
 
 #endif
-

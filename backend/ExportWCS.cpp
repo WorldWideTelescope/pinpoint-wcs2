@@ -20,10 +20,13 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+
 #include <QDebug>
 #include <QImage>
 #include <QFile>
-#include "fitsio.h"
+
+#include <fitsio.h>
+
 #include "version.h"
 #include "ExportWCS.h"
 
@@ -38,9 +41,6 @@
 
 // Provide access to the API
 #include "XMP.hpp"
-
-#include <iostream>
-#include <fstream>
 
 // Define the AVM namespace
 #define kXMP_NS_AVM "http://www.communicatingastronomy.org/avm/1.0/"
@@ -60,19 +60,22 @@ ExportWCS::~ExportWCS()
 {}
 
 
-void ExportWCS::setWCS(struct WorldCoor *w)
+void
+ExportWCS::setWCS(struct WorldCoor *w)
 {
     wcs = w;
 }
 
 
-void ExportWCS::clearWCS()
+void
+ExportWCS::clearWCS()
 {
     wcs = NULL;
 }
 
 
-void ExportWCS::exportFITS()
+void
+ExportWCS::exportFITS()
 {
     // Initialize variables
     fitsfile *fptr;
@@ -301,19 +304,22 @@ void ExportWCS::exportFITS()
 }
 
 
-
-void ExportWCS::exportAVMClean()
+void
+ExportWCS::exportAVMClean()
 {
     exportAVM(false);
 }
 
 
-void ExportWCS::exportAVMDetailed()
+void
+ExportWCS::exportAVMDetailed()
 {
     exportAVM(true);
 }
 
-void ExportWCS::exportXMP()
+
+void
+ExportWCS::exportXMP()
 {
     std::string f = filename->toStdString();
 
@@ -466,7 +472,9 @@ void ExportWCS::exportXMP()
     }
 }
 
-void ExportWCS::exportAVM(bool detailed)
+
+void
+ExportWCS::exportAVM(bool detailed)
 {
     std::string f = filename->toStdString();
 
