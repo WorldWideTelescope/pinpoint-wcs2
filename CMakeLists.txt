@@ -83,7 +83,7 @@ add_executable(
     gui/GraphicsScene.cpp
     gui/GraphicsView.cpp
     gui/HelpPanel.cpp
-    gui/mainwindow.cpp
+    gui/MainWindow.cpp
     gui/MessageBox.cpp
     gui/WcsInfoPanel.cpp
     gui/AboutDialog.h
@@ -96,7 +96,7 @@ add_executable(
     gui/GraphicsScene.h
     gui/GraphicsView.h
     gui/HelpPanel.h
-    gui/mainwindow.h
+    gui/MainWindow.h
     gui/MessageBox.h
     gui/WcsInfoPanel.h
 )

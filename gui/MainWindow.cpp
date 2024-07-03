@@ -18,7 +18,7 @@
  */
 
 #include <QDebug>
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 MainWindow::MainWindow()
 {

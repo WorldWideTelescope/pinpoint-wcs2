@@ -19,7 +19,7 @@
 
 #include <QApplication>
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "version.h"
 
 int main(int argc, char *argv[])
