@@ -26,6 +26,12 @@
 
 #include <libwcs/wcs.h>
 
+// Must be defined to instantiate template classes
+#define TXMP_STRING_TYPE std::string
+// Must be defined to give access to XMPFiles
+#define XMP_INCLUDE_XMPFILES 1
+#include "XMP.hpp"
+
 #include "EpoImage.h"
 #include "ComputeWCS.h"
 
@@ -58,6 +64,7 @@ private:
     struct WorldCoor *wcs;
     ComputeWCS *computewcs;
 
+    bool constructAVM(SXMPMeta *avm, bool detailed, SXMPFiles *out_epoimage);
     void exportAVM(bool detailed = false);
 };
 
