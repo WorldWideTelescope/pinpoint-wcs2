@@ -31,35 +31,35 @@
 #define AVM_VERSION "1.2"
 
 class ExportWCS : public QObject {
-	
-	Q_OBJECT
-	
+
+    Q_OBJECT
+
 public:
-	ExportWCS(QString *f, QPixmap *p, ComputeWCS *cwcs);
+    ExportWCS(QString *f, QPixmap *p, ComputeWCS *cwcs);
     ~ExportWCS() override;
-	QString saveas;
-	bool fitsexport;
-	
-	void setWCS(struct WorldCoor *w);
-	void clearWCS();
-	
+    QString saveas;
+    bool fitsexport;
+
+    void setWCS(struct WorldCoor *w);
+    void clearWCS();
+
 public slots:
-	void exportFITS();
-	void exportAVMClean();
-	void exportAVMDetailed();
-	void exportXMP();
-	
+    void exportFITS();
+    void exportAVMClean();
+    void exportAVMDetailed();
+    void exportXMP();
+
 signals:
-	void exportResults(bool success);
-	
+    void exportResults(bool success);
+
 private:
-	// Attributes
-	QPixmap *pixmap;
-	QString *filename;
-	struct WorldCoor *wcs;
-	ComputeWCS *computewcs;
-	
-	void exportAVM(bool detailed = false);
+    // Attributes
+    QPixmap *pixmap;
+    QString *filename;
+    struct WorldCoor *wcs;
+    ComputeWCS *computewcs;
+
+    void exportAVM(bool detailed = false);
 };
 
 #endif
