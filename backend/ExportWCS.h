@@ -66,6 +66,7 @@ private:
 
     bool constructAVM(SXMPMeta *avm, bool detailed, SXMPFiles *out_epoimage);
     void exportAVM(bool detailed = false);
+    void AVMfromWCS(SXMPMeta *avm, struct WorldCoor *wcs);
 };
 
 #endif

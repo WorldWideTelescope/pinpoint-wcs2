@@ -44,8 +44,6 @@ public:
 	Vector2d crpix;
 	Vector2d crval;
 	Matrix2d cdmatrix;
-	double scale;
-	double orientation;
 	double rms_x, rms_y;
 	QPointF fitsToEpo(QPointF *p);
 	Vector2d fitsToEpo(double x, double y);

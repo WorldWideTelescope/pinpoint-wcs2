@@ -413,72 +413,28 @@ ExportWCS::constructAVM(SXMPMeta *avm, bool detailed, SXMPFiles *out_epoimage)
             std::string avmprefix;
             SXMPMeta::RegisterNamespace(kXMP_NS_AVM, "avm", &avmprefix);
 
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.CoordinateFrame");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.Equinox");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.ReferenceValue");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.ReferenceDimension");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.ReferencePixel");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.Scale");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.Rotation");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.CoordsystemProjection");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.Quality");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.Notes");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.FITSheader");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.CDMatrix");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Publisher.MetadataDate");
-            avm->DeleteProperty(kXMP_NS_AVM, "avm:Publisher.MetadataVersion");
+            AVMfromWCS(avm, wcs);
 
-            QString equinox = QString("%1").arg(wcs->equinox, 0, 'f', 1);
-            QString crval1 = QString("%1").arg(computewcs->crval(0), 0, 'f', 11);
-            QString crval2 = QString("%1").arg(computewcs->crval(1), 0, 'f', 11);
-            QString crpix1 = QString("%1").arg(computewcs->crpix(0), 0, 'f', 11);
-            QString crpix2 = QString("%1").arg(computewcs->epo_height - computewcs->crpix(1), 0, 'f', 11);
-            QString scale1 = QString("%1").arg(-1*computewcs->scale, 0, 'f', 11);
-            QString scale2 = QString("%1").arg(computewcs->scale, 0, 'f', 11);
-            QString orientation = QString("%1").arg(computewcs->orientation, 0, 'f', 11);
-            QString width = QString("%1").arg(computewcs->epo_width);
-            QString height = QString("%1").arg(computewcs->epo_height);
-            QString spatialnotes = QString("World Coordinate System resolved using PinpointWCS %1 revision %2 by the Chandra X-ray Center").arg(VERSION).arg(REVISION);
-
-            if (detailed)
-            {
-                QString data = QString("\n\n%1\t\t%2\t\t%3\t\t%4\n").arg("FITS X").arg("FITS Y").arg("EPO X").arg("EPO Y");
-                spatialnotes.append(data);
-
-                for (int i = 0; i < computewcs->refCoords->size(); i++)
-                {
-                    QString data = QString("%1\t\t%2\t\t%3\t\t%4\n").arg(computewcs->refCoords->at(i).x(), 0, 'f', 2).arg(computewcs->refCoords->at(i).y(), 0, 'f', 2).arg(computewcs->epoCoords->at(i).x(), 0, 'f', 2).arg(computewcs->epoCoords->at(i).y(), 0, 'f', 2);
-                    spatialnotes.append(data);
-                }
-
-                // Get the center pixel (for STScI)
-                QString center_x = QString("\n%1").arg(computewcs->epo_width/2., 0, 'f', 2);
-                QString center_y = QString("%1").arg(computewcs->epo_height/2., 0, 'f', 2);
-                QString center_ra = QString("FIXME"); // QString("%1").arg(computewcs->centerRA, 0, 'f', 11);
-                QString center_dec = QString("FIXME"); // QString("%1").arg(computewcs->centerDec, 0, 'f', 11);
-
-                QString centerpix = QString("\nCenter Pixel Coordinates:%1\t%2\n%3\t%4").arg(center_x).arg(center_ra).arg(center_y).arg(center_dec);
-                spatialnotes.append(centerpix);
-            }
-
-            XMP_OptionBits itemOptions;
-            itemOptions = kXMP_PropValueIsArray | kXMP_PropArrayIsOrdered;
-
-            avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.CoordinateFrame", "ICRS", 0);
-            avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.Equinox", equinox.toStdString(), 0);
-            avm->AppendArrayItem(kXMP_NS_AVM, "avm:Spatial.ReferenceValue", itemOptions, crval1.toStdString());
-            avm->AppendArrayItem(kXMP_NS_AVM, "avm:Spatial.ReferenceValue", itemOptions, crval2.toStdString());
-            avm->AppendArrayItem(kXMP_NS_AVM, "avm:Spatial.ReferenceDimension", itemOptions, width.toStdString());
-            avm->AppendArrayItem(kXMP_NS_AVM, "avm:Spatial.ReferenceDimension", itemOptions, height.toStdString());
-            avm->AppendArrayItem(kXMP_NS_AVM, "avm:Spatial.ReferencePixel", itemOptions, crpix1.toStdString());
-            avm->AppendArrayItem(kXMP_NS_AVM, "avm:Spatial.ReferencePixel", itemOptions, crpix2.toStdString());
-            avm->AppendArrayItem(kXMP_NS_AVM, "avm:Spatial.Scale", itemOptions, scale1.toStdString());
-            avm->AppendArrayItem(kXMP_NS_AVM, "avm:Spatial.Scale", itemOptions, scale2.toStdString());
-            avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.Rotation", orientation.toStdString(), 0);
-            avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.CoordsystemProjection", "TAN", 0);
-            avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.Quality", "Full", 0);
-            avm->SetLocalizedText(kXMP_NS_AVM, "avm:Spatial.Notes", "x-default", "x-default", spatialnotes.toStdString(), 0);
-            // avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.FITSheader", ...", 0);
+            //if (detailed)
+            //{
+            //    QString data = QString("\n\n%1\t\t%2\t\t%3\t\t%4\n").arg("FITS X").arg("FITS Y").arg("EPO X").arg("EPO Y");
+            //    spatialnotes.append(data);
+            //
+            //    for (int i = 0; i < computewcs->refCoords->size(); i++)
+            //    {
+            //        QString data = QString("%1\t\t%2\t\t%3\t\t%4\n").arg(computewcs->refCoords->at(i).x(), 0, 'f', 2).arg(computewcs->refCoords->at(i).y(), 0, 'f', 2).arg(computewcs->epoCoords->at(i).x(), 0, 'f', 2).arg(computewcs->epoCoords->at(i).y(), 0, 'f', 2);
+            //        spatialnotes.append(data);
+            //    }
+            //
+            //    // Get the center pixel (for STScI)
+            //    QString center_x = QString("\n%1").arg(computewcs->epo_width/2., 0, 'f', 2);
+            //    QString center_y = QString("%1").arg(computewcs->epo_height/2., 0, 'f', 2);
+            //    QString center_ra = QString("FIXME"); // QString("%1").arg(computewcs->centerRA, 0, 'f', 11);
+            //    QString center_dec = QString("FIXME"); // QString("%1").arg(computewcs->centerDec, 0, 'f', 11);
+            //
+            //    QString centerpix = QString("\nCenter Pixel Coordinates:%1\t%2\n%3\t%4").arg(center_x).arg(center_ra).arg(center_y).arg(center_dec);
+            //    spatialnotes.append(centerpix);
+            //}
 
             XMP_DateTime updatedTime;
             SXMPUtils::CurrentDateTime(&updatedTime);
@@ -499,4 +455,113 @@ ExportWCS::constructAVM(SXMPMeta *avm, bool detailed, SXMPFiles *out_epoimage)
     }
 
     return error;
+}
+
+
+void
+ExportWCS::AVMfromWCS(SXMPMeta *avm, struct WorldCoor *wcs)
+{
+    const XMP_OptionBits seq = kXMP_PropValueIsArray | kXMP_PropArrayIsOrdered;
+
+    // Delete tags that might be present from preexisting data, and that we're
+    // not about to overwrite.
+    avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.FITSheader");
+    avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.CDMatrix");
+
+    avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.CoordinateFrame", "ICRS", 0);
+    avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.CoordsystemProjection", "TAN", 0);
+
+    avm->SetProperty(
+        kXMP_NS_AVM,
+        "avm:Spatial.Equinox",
+        QString("%1").arg(wcs->equinox, 0, 'f', 1).toStdString(),
+        0
+    );
+
+    // If there were already AVM data, we have to make sure to clear out
+    // preexisting lists/arrays since we're using AppendArrayItem here.
+    avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.ReferenceValue");
+    avm->AppendArrayItem(
+        kXMP_NS_AVM,
+        "avm:Spatial.ReferenceValue",
+        seq,
+        QString("%1").arg(wcs->crval[0], 0, 'f', 11).toStdString()
+    );
+    avm->AppendArrayItem(
+        kXMP_NS_AVM,
+        "avm:Spatial.ReferenceValue",
+        seq,
+        QString("%1").arg(wcs->crval[1], 0, 'f', 11).toStdString()
+    );
+
+    // The AVM standard is somewhat unclear about how to handle image parity.
+    // In the wild, it appears that AVM data tend to be expressed as if the
+    // image had FITS Y parity (first row is on bottom). Our input WCS should
+    // encode JPEG-like parity. To line up with standard practice, we need to
+    // invert the Y "crpix" value.
+
+    float y_crpix = wcs->nypix - wcs->crpix[1];
+
+    avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.ReferencePixel");
+    avm->AppendArrayItem(
+        kXMP_NS_AVM,
+        "avm:Spatial.ReferencePixel",
+        seq,
+        QString("%1").arg(wcs->crpix[0], 0, 'f', 11).toStdString()
+    );
+    avm->AppendArrayItem(
+        kXMP_NS_AVM,
+        "avm:Spatial.ReferencePixel",
+        seq,
+        QString("%1").arg(y_crpix, 0, 'f', 11).toStdString()
+    );
+
+    // We compute scale and orientation from the CD matrix. There are CD
+    // matrices that cannot be expressed this way, though. TODO: validate!
+
+    double cd_det = wcs->cd[0] * wcs->cd[3] - wcs->cd[1] * wcs->cd[2];
+    int cd_sign = cd_det < 0 ? -1 : 1;
+    double rotation = std::atan2(-cd_sign * wcs->cd[1], -wcs->cd[3]) * 180 / M_PI;
+    double scale_x = -std::hypot(wcs->cd[0], wcs->cd[1]);
+    double scale_y = std::hypot(wcs->cd[2], wcs->cd[3]);
+
+    avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.Scale");
+    avm->AppendArrayItem(
+        kXMP_NS_AVM,
+        "avm:Spatial.Scale",
+        seq,
+        QString("%1").arg(scale_x, 0, 'f', 11).toStdString()
+    );
+    avm->AppendArrayItem(
+        kXMP_NS_AVM,
+        "avm:Spatial.Scale",
+        seq,
+        QString("%1").arg(scale_y, 0, 'f', 11).toStdString()
+    );
+    avm->SetProperty(
+        kXMP_NS_AVM,
+        "avm:Spatial.Rotation",
+        QString("%1").arg(rotation, 0, 'f', 11).toStdString(),
+        0
+    );
+
+    avm->DeleteProperty(kXMP_NS_AVM, "avm:Spatial.ReferenceDimension");
+    avm->AppendArrayItem(
+        kXMP_NS_AVM,
+        "avm:Spatial.ReferenceDimension",
+        seq,
+        QString("%1").arg(wcs->nxpix).toStdString()
+    );
+    avm->AppendArrayItem(
+        kXMP_NS_AVM,
+        "avm:Spatial.ReferenceDimension",
+        seq,
+        QString("%1").arg(wcs->nypix).toStdString()
+    );
+
+    avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.Quality", "Full", 0);
+
+    QString spatialnotes = QString("World Coordinate System resolved using PinpointWCS %1 revision %2 by the Chandra X-ray Center").arg(VERSION).arg(REVISION);
+    avm->SetLocalizedText(kXMP_NS_AVM, "avm:Spatial.Notes", "x-default", "x-default", spatialnotes.toStdString(), 0);
+    // avm->SetProperty(kXMP_NS_AVM, "avm:Spatial.FITSheader", ...", 0);
 }

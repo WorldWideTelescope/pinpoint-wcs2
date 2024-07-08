@@ -153,25 +153,6 @@ ComputeWCS::computeTargetWCS()
     std::cout << "crpix: " << crpix << std::endl;
     std::cout << "CD: " << cdmatrix << std::endl;
 
-    // Finally, convert the WCS information to AVM/WWT-style. There are
-    // solutions that can be expressed in WCS that cannot be captured by AVM.
-
-    double cd_det = cdmatrix.determinant();
-    int cd_sign = cd_det < 0 ? -1 : 1;
-    double rotation = std::atan2(-cd_sign * cdmatrix(0,1), -cdmatrix(1,1));
-    double scale_x = std::hypot(cdmatrix(0,0), cdmatrix(0,1));
-    double scale_y = std::hypot(cdmatrix(1,0), cdmatrix(1,1));
-
-    std::cout << "det: " << cd_det << std::endl;
-    std::cout << "rot: " << (rotation * 180/3.14159) << std::endl;
-    std::cout << "scale_x: " << scale_x << std::endl;
-    std::cout << "scale_y: " << scale_y << std::endl;
-
-    // TODO: safety
-
-    orientation = rotation * 180. / M_PI;
-    scale = 0.5 * (scale_x + scale_y);
-
     // Done.
 
     epoWCS = true;
