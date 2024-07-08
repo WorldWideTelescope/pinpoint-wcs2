@@ -124,7 +124,7 @@ ExportWCS::constructFITS()
     // Initialize the values in the image using the QPixmaps
     for (jj = 0; jj < naxes[1]; jj++)
         for (ii = 0; ii < naxes[0]; ii++)
-            imagedata[jj][ii] = qGray(im.pixel(ii, naxes[1]-jj-1));
+            imagedata[jj][ii] = qGray(im.pixel(ii, jj));
 
     // First pixel and number of pixels to write
     fpixel = 1;
