@@ -398,7 +398,7 @@ ExportWCS::AVMfromWCS(SXMPMeta *avm, struct WorldCoor *wcs)
 
     double cd_det = wcs->cd[0] * wcs->cd[3] - wcs->cd[1] * wcs->cd[2];
     int cd_sign = cd_det < 0 ? -1 : 1;
-    double rotation = std::atan2(-cd_sign * wcs->cd[1], -wcs->cd[3]) * 180 / M_PI;
+    double rotation = std::atan2(cd_sign * wcs->cd[1], -wcs->cd[3]) * 180 / M_PI;
     double scale_x = -std::hypot(wcs->cd[0], wcs->cd[1]);
     double scale_y = std::hypot(wcs->cd[2], wcs->cd[3]);
 

@@ -142,12 +142,12 @@ ComputeWCS::computeTargetWCS()
     crpix(1) = vwork[1];
 
     // CD matrix concatenates the transforms. Since the CD matrix is of
-    // contravariant type, we have to post-multiply it by epo2fits.
+    // contravariant type, we have to multiply it by epo2fits.
 
     Matrix2d mwork = Matrix2d();
     cdmatrix << referenceWCS->cd[0], referenceWCS->cd[1], referenceWCS->cd[2], referenceWCS->cd[3];
     mwork << epo2fits(0,0), epo2fits(0,1), epo2fits(1,0), epo2fits(1,1);
-    cdmatrix = cdmatrix * mwork;
+    cdmatrix = mwork * cdmatrix;
 
     std::cout << "crval: " << crval << std::endl;
     std::cout << "crpix: " << crpix << std::endl;
