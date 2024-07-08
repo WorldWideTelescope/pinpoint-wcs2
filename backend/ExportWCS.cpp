@@ -91,115 +91,80 @@ ExportWCS::exportFITS()
 bool
 ExportWCS::constructFITS()
 {
+    const int BITPIX = BYTE_IMG;
+    const long NAXIS = 2;
+
     fitsfile *fptr;
     int status = 0;
-    int ii, jj;
-    long fpixel, nelements;
-    unsigned short *imagedata[pixmap->height()];
+    unsigned short *imagedata;
     QImage im = pixmap->toImage();
-    int bitpix = BYTE_IMG;
-    long naxis = 2;
     long naxes[2] = {pixmap->width(), pixmap->height()};
 
-    // Allocate memory for the entire image
-    imagedata[0] = (unsigned short *) malloc(naxes[0] * naxes[1] * sizeof(unsigned short));
-    if (imagedata[0] == NULL)
+    imagedata = new unsigned short[naxes[0] * naxes[1]];
+    if (imagedata == NULL)
         return false;
 
-    // Initialize pointers to the start of each row of the image
-    for(ii=1; ii<naxes[1]; ii++)
-        imagedata[ii] = imagedata[ii-1] + naxes[0];
-
-    // Remove file is it already exists
+    // Remove file if it already exists
     remove(saveas.toStdString().c_str());
 
-    // Attempt to create the FITS file (writes to disk)
     if (fits_create_file(&fptr, saveas.toStdString().c_str(), &status))
         return false;
 
-    // Attempt to create the image HDU
-    if (fits_create_img(fptr,  bitpix, naxis, naxes, &status))
+    if (fits_create_img(fptr, BITPIX, NAXIS, naxes, &status))
         return false;
 
-    // Initialize the values in the image using the QPixmaps
-    for (jj = 0; jj < naxes[1]; jj++)
-        for (ii = 0; ii < naxes[0]; ii++)
-            imagedata[jj][ii] = qGray(im.pixel(ii, jj));
+    for (int iy = 0; iy < naxes[1]; iy++)
+        for (int ix = 0; ix < naxes[0]; ix++)
+            imagedata[iy * naxes[0] + ix] = qGray(im.pixel(ix, iy));
 
-    // First pixel and number of pixels to write
-    fpixel = 1;
-    nelements = naxes[0] * naxes[1];
-
-    // Write the array to the FITS image
-    if (fits_write_img(fptr, TUSHORT, fpixel, nelements, imagedata[0], &status))
+    if (fits_write_img(fptr, TUSHORT, 1, naxes[0] * naxes[1], imagedata, &status))
         return false;
 
-    // Free memory
-    free(imagedata[0]);
+    delete[] imagedata;
 
-    // Initialize variables for the FITS header
-    char xtension[] = "IMAGE";
-    char origin[] = "PinpointWCS by the Chandra X-ray Center";
-    char wcsname[] = "Primary WCS";
-    char ctype1[] = "RA---TAN";
-    char ctype2[] = "DEC--TAN";
-    char cunit[] = "deg";
+    // Emit the headers
 
-    // TSTRING, TLOGICAL (== int), TBYTE, TSHORT, TUSHORT, TINT, TUINT, TLONG, TLONGLONG, TULONG, TFLOAT, TDOUBLE
-    if (fits_update_key(fptr, TSTRING, "XTENSION", &xtension, NULL, &status))
+    if (fits_update_key_str(fptr, "XTENSION", "IMAGE", NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "ORIGIN", &origin, NULL, &status))
+    if (fits_update_key_str(fptr, "ORIGIN", "PinpointWCS by the Chandra X-ray Center", NULL, &status))
         return false;
-    if (fits_update_key(fptr, TINT, "WCSAXES", &naxis, NULL, &status))
+    if (fits_update_key_log(fptr, "WCSAXES", NAXIS, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "WCSNAME", &wcsname, NULL, &status))
+    if (fits_update_key_str(fptr, "WCSNAME", "Primary WCS", NULL, &status))
         return false;
-
-    // Format values to specific digits
-    QString equinox = QString("%1").arg(wcs->equinox, 0, 'f', 1);
-    QString crpix1 = QString("%1").arg(wcs->xrefpix, 0, 'f', 11);
-    QString crval1 = QString("%1").arg(wcs->xref, 0, 'f', 11);
-    QString crpix2 = QString("%1").arg(wcs->yrefpix, 0, 'f', 11);
-    QString crval2 = QString("%1").arg(wcs->yref, 0, 'f', 11);
-    QString cd11 = QString("%1").arg(wcs->cd[0], 0, 'f', 11);
-    QString cd12 = QString("%1").arg(wcs->cd[1], 0, 'f', 11);
-    QString cd21 = QString("%1").arg(wcs->cd[2], 0, 'f', 11);
-    QString cd22 = QString("%1").arg(wcs->cd[3], 0, 'f', 11);
-
-    if (fits_update_key(fptr, TSTRING, "EQUINOX", (void*) equinox.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "EQUINOX", wcs->equinox, -14, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "RADESYS", &(wcs->radecsys), NULL, &status))
+    if (fits_update_key_str(fptr, "RADESYS", wcs->radecsys, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CTYPE1", &ctype1, NULL, &status))
+    if (fits_update_key_str(fptr, "CTYPE1", "RA---TAN", NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CRPIX1", (void*) crpix1.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "CRPIX1", wcs->xrefpix, -14, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CRVAL1", (void*) crval1.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "CRVAL1", wcs->xref, -14, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CUNIT1", &cunit, NULL, &status))
+    if (fits_update_key_str(fptr, "CUNIT1", "deg", NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CTYPE2", &ctype2, NULL, &status))
+    if (fits_update_key_str(fptr, "CTYPE2", "DEC--TAN", NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CRPIX2", (void*) crpix2.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "CRPIX2", wcs->yrefpix, -14, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CRVAL2", (void*) crval2.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "CRVAL2", wcs->yref, -14, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CUNIT2", &cunit, NULL, &status))
+    if (fits_update_key_str(fptr, "CUNIT2", "deg", NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CD1_1", (void*) cd11.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "CD1_1", wcs->cd[0], -14, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CD1_2", (void*) cd21.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "CD1_2", wcs->cd[1], -14, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CD2_1", (void*) cd12.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "CD2_1", wcs->cd[2], -14, NULL, &status))
         return false;
-    if (fits_update_key(fptr, TSTRING, "CD2_2", (void*) cd22.toStdString().c_str(), NULL, &status))
+    if (fits_update_key_dbl(fptr, "CD2_2", wcs->cd[3], -14, NULL, &status))
         return false;
 
-    // Write comments
-    if (fits_write_comment(fptr, "World Coordinate System computed using PinpointWCS by the Chandra X-ray Center.  PinpointWCS is developed and maintained by Amit Kapadia (CfA) akapadia@cfa.harvard.edu.", &status))
+    const char *comment = "World Coordinate System computed using PinpointWCS by the Chandra X-ray Center.  PinpointWCS is developed and maintained by Amit Kapadia (CfA) akapadia@cfa.harvard.edu.";
+    if (fits_write_comment(fptr, comment, &status))
         return false;
 
-    // Close FITS file
     if (fits_close_file(fptr, &status))
         return false;
 
