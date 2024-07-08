@@ -128,7 +128,7 @@ ExportWCS::constructFITS()
         return false;
     if (fits_update_key_str(fptr, "ORIGIN", "PinpointWCS by the Chandra X-ray Center", NULL, &status))
         return false;
-    if (fits_update_key_log(fptr, "WCSAXES", NAXIS, NULL, &status))
+    if (fits_update_key_lng(fptr, "WCSAXES", NAXIS, NULL, &status))
         return false;
     if (fits_update_key_str(fptr, "WCSNAME", "Primary WCS", NULL, &status))
         return false;
