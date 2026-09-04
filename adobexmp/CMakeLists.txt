@@ -315,3 +315,8 @@ add_dependencies(adobexmp expat_header_link zlib_header_link)
 #    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Android.cpp
 #    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp
 #    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_WIN.cpp
+
+if (APPLE)
+    # Needed for some old Unicode APIs that are used
+    target_link_libraries(adobexmp PRIVATE "-framework CoreServices")
+endif()
