@@ -4,3 +4,4 @@ Makefile
 PinpointWCS
 PinpointWCS_autogen/
 cmake_install.cmake
+pinpoint-wcs2-*.tar.gz

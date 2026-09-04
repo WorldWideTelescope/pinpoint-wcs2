@@ -5,7 +5,7 @@
 
 context:
   name: pinpointwcs2
-  version: 0.9.2
+  version: 0.9.3
 
 package:
   name: ${{ name }}
@@ -13,10 +13,10 @@ package:
 
 source:
   - url: https://github.com/WorldWideTelescope/pinpoint-wcs2/releases/download/v${{ version }}/pinpoint-wcs2-${{ version }}.tar.gz
-    sha256: 37e337fcc7d449457f44c6b05ed7553c3376b07597d0abf7eb3d809ff6eb70e1
+    sha256: 7752a2a943901cd07747480961db45e3be96f435dc5f16ab433ecc361446ae27
 
 build:
-  number: 1
+  number: 0
 
 requirements:
   build:
