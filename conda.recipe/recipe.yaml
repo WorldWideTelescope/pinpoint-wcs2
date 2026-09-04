@@ -13,7 +13,7 @@ package:
 
 source:
   url: https://github.com/WorldWideTelescope/pinpoint-wcs2/releases/download/v${{ version }}/pinpoint-wcs2-${{ version }}.tar.gz
-  sha256: 25c53fb40216e1a6629b261618cef351753d377a559dd56d69148a773531ca54
+  sha256: 9fc52cb9c0b8d19f1191f3c25fece1bc7833788dca78a75206766943faf9c71f
   patches:
     # Since XMP-Toolkit-SDK is a git submodule and I would rather not maintain my
     # own fork of it, we patch it here instead of actually fixing the underlying code.
