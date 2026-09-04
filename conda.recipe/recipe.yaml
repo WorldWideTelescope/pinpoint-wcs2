@@ -26,6 +26,7 @@ requirements:
     - cfitsio
     - eigen
     - expat
+    - libgl-devel
     - qt-main
     - wcstools
     - xpa
