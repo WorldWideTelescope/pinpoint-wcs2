@@ -7,29 +7,33 @@ context:
   name: pinpointwcs2
   version: 0.9.2
 
+package:
+  name: ${{ name }}
+  version: ${{ version }}
+
 source:
   - url: https://github.com/WorldWideTelescope/pinpoint-wcs2/releases/download/v${{ version }}/pinpoint-wcs2-${{ version }}.tar.gz
     sha256: 37e337fcc7d449457f44c6b05ed7553c3376b07597d0abf7eb3d809ff6eb70e1
 
-outputs:
-  - package:
-      name: ${{ name }}
-      version: ${{ version }}
-    requirements:
-      build:
-        - cmake
-        - ${{ compiler("cxx") }}
-      host:
-        - cfitsio
-        - eigen
-        - expat
-        - qt-main
-        - wcstools
-        - xpa
-      run:
-        - ${{ pin_compatible("wcstools") }}
+build:
+  number: 1
+
+requirements:
+  build:
+    - cmake
+    - ${{ compiler("cxx") }}
+  host:
+    - cfitsio
+    - eigen
+    - expat
+    - qt-main
+    - wcstools
+    - xpa
+  run:
+    - ${{ pin_compatible("wcstools") }}
 
 about:
   homepage: https://gitlab.com/WorldWideTelescope/pinpoint-wcs2
+  repository: https://gitlab.com/WorldWideTelescope/pinpoint-wcs2
   license: GPL-3.0-or-later
   summary: Compute AVM/WCS for EPO images derived from FITS data
