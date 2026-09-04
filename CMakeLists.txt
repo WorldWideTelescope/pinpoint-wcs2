@@ -23,10 +23,27 @@ find_package(XPA REQUIRED)
 
 add_subdirectory(adobexmp)
 
+if (APPLE)
+    add_compile_definitions(
+        XMP_MacBuild=1
+    )
+else()
+    add_compile_definitions(
+        XMP_UNIXBuild=1
+    )
+endif()
+
 add_compile_definitions(
     UNIX_ENV=1
-    XMP_UNIXBuild=1
     XMP_COMPONENT_INT_NAMESPACE=AdobeXMPCore_Int
+)
+
+include_directories(
+    SYSTEM
+    ${EIGEN3_INCLUDE_DIR}
+    ${LIBWCS_INCLUDE_DIR}
+    ${CFITSIO_INCLUDE_DIR}
+    ${XPA_INCLUDE_DIR}
 )
 
 include_directories(
@@ -34,10 +51,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/gui
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/adobexmp/XMP-Toolkit-SDK/public/include
-    ${EIGEN3_INCLUDE_DIR}
-    ${LIBWCS_INCLUDE_DIR}
-    ${CFITSIO_INCLUDE_DIR}
-    ${XPA_INCLUDE_DIR}
 )
 
 add_executable(
