@@ -22,15 +22,16 @@ include_directories(
 if (APPLE)
     add_compile_definitions(
         XMP_MacBuild=1
+        MAC_ENV=1
     )
 else()
     add_compile_definitions(
         XMP_UNIXBuild=1
+        UNIX_ENV=1
     )
 endif()
 
 add_compile_definitions(
-    UNIX_ENV=1
     XMP_COMPONENT_INT_NAMESPACE=AdobeXMPCore_Int
 )
 
