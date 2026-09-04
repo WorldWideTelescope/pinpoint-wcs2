@@ -13,7 +13,7 @@ package:
 
 source:
   - url: https://github.com/WorldWideTelescope/pinpoint-wcs2/releases/download/v${{ version }}/pinpoint-wcs2-${{ version }}.tar.gz
-    sha256: 7752a2a943901cd07747480961db45e3be96f435dc5f16ab433ecc361446ae27
+    sha256: 7c4d531e945893c652299d4265dd6758bd5003986e56a14d58f4f839ccc7e6a4
 
 build:
   number: 0
