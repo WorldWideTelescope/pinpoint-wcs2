@@ -1,0 +1,38 @@
+diff --git a/adobexmp/XMP-Toolkit-SDK/XMPCommon/BaseClasses/MemoryManagedObject.h b/adobexmp/XMP-Toolkit-SDK/XMPCommon/BaseClasses/MemoryManagedObject.h
+index 8488ff5..39df3f8 100644
+--- a/adobexmp/XMP-Toolkit-SDK/XMPCommon/BaseClasses/MemoryManagedObject.h
++++ b/adobexmp/XMP-Toolkit-SDK/XMPCommon/BaseClasses/MemoryManagedObject.h
+@@ -1,6 +1,8 @@
+ #ifndef MemoryManagedObject_h__
+ #define MemoryManagedObject_h__ 1
+ 
++#include <new>
++
+ // =================================================================================================
+ // Copyright 2014 Adobe
+ // All Rights Reserved.
+diff --git a/adobexmp/XMP-Toolkit-SDK/XMPCore/source/XMPCore_Impl.cpp b/adobexmp/XMP-Toolkit-SDK/XMPCore/source/XMPCore_Impl.cpp
+index 20f446c..a0fd57d 100644
+--- a/adobexmp/XMP-Toolkit-SDK/XMPCore/source/XMPCore_Impl.cpp
++++ b/adobexmp/XMP-Toolkit-SDK/XMPCore/source/XMPCore_Impl.cpp
+@@ -12,6 +12,7 @@
+ #include "XMPCore/source/XMPMeta.hpp"	// *** For use of GetNamespacePrefix in FindSchemaNode.
+ #include "source/UnicodeInlines.incl_cpp"
+ #include <algorithm>
++#include <new>
+ 
+ using namespace std;
+ 
+diff --git a/adobexmp/XMP-Toolkit-SDK/XMPFiles/source/FileHandlers/SVG_Handler.cpp b/adobexmp/XMP-Toolkit-SDK/XMPFiles/source/FileHandlers/SVG_Handler.cpp
+index 2d01a76..f84f3b4 100644
+--- a/adobexmp/XMP-Toolkit-SDK/XMPFiles/source/FileHandlers/SVG_Handler.cpp
++++ b/adobexmp/XMP-Toolkit-SDK/XMPFiles/source/FileHandlers/SVG_Handler.cpp
+@@ -25,6 +25,8 @@
+ 
+ #include "XMPFiles/source/FileHandlers/SVG_Handler.hpp"
+ 
++#include <new>
++
+ using namespace std;
+ 
+ /*

@@ -5,7 +5,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 set(VERSION "1.0.0")
 project(PinpointWCS VERSION ${VERSION})
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -23,10 +23,28 @@ find_package(XPA REQUIRED)
 
 add_subdirectory(adobexmp)
 
+if (APPLE)
+    add_compile_definitions(
+        XMP_MacBuild=1
+        MAC_ENV=1
+    )
+else()
+    add_compile_definitions(
+        XMP_UNIXBuild=1
+        UNIX_ENV=1
+    )
+endif()
+
 add_compile_definitions(
-    UNIX_ENV=1
-    XMP_UNIXBuild=1
     XMP_COMPONENT_INT_NAMESPACE=AdobeXMPCore_Int
+)
+
+include_directories(
+    SYSTEM
+    ${EIGEN3_INCLUDE_DIR}
+    ${LIBWCS_INCLUDE_DIR}
+    ${CFITSIO_INCLUDE_DIR}
+    ${XPA_INCLUDE_DIR}
 )
 
 include_directories(
@@ -34,10 +52,6 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/gui
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/adobexmp/XMP-Toolkit-SDK/public/include
-    ${EIGEN3_INCLUDE_DIR}
-    ${LIBWCS_INCLUDE_DIR}
-    ${CFITSIO_INCLUDE_DIR}
-    ${XPA_INCLUDE_DIR}
 )
 
 add_executable(

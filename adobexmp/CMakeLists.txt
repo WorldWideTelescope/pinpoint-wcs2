@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(EXPAT REQUIRED)
@@ -19,9 +19,19 @@ include_directories(
     ${ZLIB_INCLUDE_DIRS}
 )
 
+if (APPLE)
+    add_compile_definitions(
+        XMP_MacBuild=1
+        MAC_ENV=1
+    )
+else()
+    add_compile_definitions(
+        XMP_UNIXBuild=1
+        UNIX_ENV=1
+    )
+endif()
+
 add_compile_definitions(
-    UNIX_ENV=1
-    XMP_UNIXBuild=1
     XMP_COMPONENT_INT_NAMESPACE=AdobeXMPCore_Int
 )
 
@@ -289,7 +299,6 @@ add_library(
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/FileHandlerInstance.cpp
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/HostAPIImpl.cpp
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/Module.cpp
-    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/PluginManager.cpp
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/XMPAtoms.cpp
     XMP-Toolkit-SDK/XMPFiles/source/WXMPFiles.cpp
@@ -299,9 +308,15 @@ add_library(
     XMP-Toolkit-SDK/XMPFiles/source/XMPFiles_Impl.hpp
 )
 
+if (APPLE)
+    target_sources(adobexmp PRIVATE XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp)
+else()
+    target_sources(adobexmp PRIVATE XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp)
+endif()
+
 add_dependencies(adobexmp expat_header_link zlib_header_link)
 
-#    XMP-Toolkit-SDK/source/Host_IO-Win.cpp
-#    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Android.cpp
-#    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp
-#    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_WIN.cpp
+if (APPLE)
+    # Needed for some old Unicode APIs that are used
+    target_link_libraries(adobexmp PRIVATE "-framework CoreServices")
+endif()
