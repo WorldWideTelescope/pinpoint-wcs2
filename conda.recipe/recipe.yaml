@@ -32,6 +32,7 @@ requirements:
     - qt-main
     - wcstools
     - xpa
+    - zlib
   run:
     - ${{ pin_compatible("wcstools") }}
 
