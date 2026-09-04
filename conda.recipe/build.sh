@@ -1,4 +1,16 @@
+#! /bin/bash
+
 set -xeuo pipefail
+
+# Workaround/hack -- the pkgw-forge version of wcstools puts its headers in
+# $PREFIX/include/wcstools/libwcs/*.h, while the conda-forge package does
+# not include the "libwcs/" component. The upstream source currently uses
+# #include statements of the form `#include <libwcs/wcs.h>`. So just copy
+# files around to make everything appear homogeneous, if needed.
+if [ ! -d "$PREFIX/include/wcstools/libwcs" ] ; then
+    mkdir "$PREFIX/include/wcstools/libwcs"
+    cp -av "$PREFIX/include/wcstools"/*.h "$PREFIX/include/wcstools/libwcs/"
+fi
 
 cmake_args=(
     -DCFITSIO_INCLUDE_DIR=$PREFIX/include
