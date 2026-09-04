@@ -24,10 +24,10 @@ if [ -z "$cur_tag" -o v"$version" != "$cur_tag" ] ; then
     exit 1
 fi
 
-##if [ -n "$(git status --porcelain)" ]; then 
-##    echo >&2 "error: Git working tree does not appear to be clean"
-##    exit 1
-##fi
+if [ -n "$(git status --porcelain)" ]; then 
+    echo >&2 "error: Git working tree does not appear to be clean"
+    exit 1
+fi
 
 set -e
 
