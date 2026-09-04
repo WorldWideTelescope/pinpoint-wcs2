@@ -26,7 +26,7 @@ else
 fi
 
 cmake_args+=(
-    -DCMAKE_CXX_FLAGS="$CXXFLAGS -std=c++14 -I$(pwd)/build/adobexmp"
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -I$(pwd)/build/adobexmp"
     -DCMAKE_EXE_LINKER_FLAGS="$linkflags"
     -DCMAKE_MODULE_LINKER_FLAGS="$linkflags"
     -DCMAKE_SHARED_LINKER_FLAGS="$linkflags"
