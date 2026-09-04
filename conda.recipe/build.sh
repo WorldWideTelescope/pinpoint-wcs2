@@ -17,7 +17,7 @@ if [[ $(uname) == Darwin ]] ; then
     linkflags="-Wl,-rpath,$PREFIX/lib $LDFLAGS"
 
     # cmake_args+=(
-    #     -DCMAKE_CXX_FLAGS="-arch $OSX_ARCH -stdlib=libc++ -std=c++11 -D_LIBCPP_DISABLE_AVAILABILITY"
+    #     -DCMAKE_CXX_FLAGS="-arch $OSX_ARCH -stdlib=libc++ -D_LIBCPP_DISABLE_AVAILABILITY"
     #     -DCMAKE_OSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
     #     -DCMAKE_OSX_SYSROOT=/
     # )
@@ -26,7 +26,7 @@ else
 fi
 
 cmake_args+=(
-    -DCMAKE_CXX_FLAGS="$CXXFLAGS -I$(pwd)/build/adobexmp"
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -std=c++14 -I$(pwd)/build/adobexmp"
     -DCMAKE_EXE_LINKER_FLAGS="$linkflags"
     -DCMAKE_MODULE_LINKER_FLAGS="$linkflags"
     -DCMAKE_SHARED_LINKER_FLAGS="$linkflags"
