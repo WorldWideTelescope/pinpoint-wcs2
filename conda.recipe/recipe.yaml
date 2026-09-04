@@ -18,7 +18,9 @@ source:
     # Since XMP-Toolkit-SDK is a git submodule and I would rather not maintain my
     # own fork of it, we patch it here instead of actually fixing the underlying code.
     - if: osx
-      then: apple-nothrow.patch
+      then:
+        - apple-nothrow.patch
+        - apple-pointer-typing.patch
 
 build:
   number: 0

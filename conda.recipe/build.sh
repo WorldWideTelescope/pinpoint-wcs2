@@ -27,9 +27,6 @@ cmake_args=(
 
 if [[ $(uname) == Darwin ]] ; then
     linkflags="-Wl,-rpath,$PREFIX/lib $LDFLAGS"
-
-    # Avoid some miscellaneous build issues in XMP-Toolkit-SDK
-    CXXFLAGS="${CXXFLAGS} -Wno-error=incompatible-pointer-types"
 else
     linkflags="-Wl,-rpath-link,$PREFIX/lib -ldl $LDFLAGS"
 fi
