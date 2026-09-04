@@ -55,3 +55,6 @@ make -j${CPU_COUNT} VERBOSE=1
 
 mkdir -p $PREFIX/bin
 cp -p PinpointWCS $PREFIX/bin
+
+# Avoid packaging these files if we created them above
+rm -rf "$PREFIX/include/wcstools/libwcs"
