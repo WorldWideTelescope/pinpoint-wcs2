@@ -12,8 +12,13 @@ package:
   version: ${{ version }}
 
 source:
-  - url: https://github.com/WorldWideTelescope/pinpoint-wcs2/releases/download/v${{ version }}/pinpoint-wcs2-${{ version }}.tar.gz
-    sha256: b526303fb8262897abac8003242bba0acf5e5e1cc4108629c85b56b6061a1010
+  url: https://github.com/WorldWideTelescope/pinpoint-wcs2/releases/download/v${{ version }}/pinpoint-wcs2-${{ version }}.tar.gz
+  sha256: b526303fb8262897abac8003242bba0acf5e5e1cc4108629c85b56b6061a1010
+  patches:
+    # Since XMP-Toolkit-SDK is a git submodule and I would rather not maintain my
+    # own fork of it, we patch it here instead of actually fixing the underlying code.
+    - if: osx
+      then: apple-nothrow.patch
 
 build:
   number: 0
