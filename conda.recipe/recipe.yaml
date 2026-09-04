@@ -20,7 +20,6 @@ source:
     - if: osx
       then:
         - apple-nothrow.patch
-        - apple-pointer-typing.patch
 
 build:
   number: 0

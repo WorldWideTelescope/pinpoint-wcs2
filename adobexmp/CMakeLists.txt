@@ -299,7 +299,6 @@ add_library(
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/FileHandlerInstance.cpp
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/HostAPIImpl.cpp
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/Module.cpp
-    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/PluginManager.cpp
     XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/XMPAtoms.cpp
     XMP-Toolkit-SDK/XMPFiles/source/WXMPFiles.cpp
@@ -309,12 +308,13 @@ add_library(
     XMP-Toolkit-SDK/XMPFiles/source/XMPFiles_Impl.hpp
 )
 
-add_dependencies(adobexmp expat_header_link zlib_header_link)
+if (APPLE)
+    target_sources(adobexmp PRIVATE XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp)
+else()
+    target_sources(adobexmp PRIVATE XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Linux.cpp)
+endif()
 
-#    XMP-Toolkit-SDK/source/Host_IO-Win.cpp
-#    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Android.cpp
-#    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_Mac.cpp
-#    XMP-Toolkit-SDK/XMPFiles/source/PluginHandler/OS_Utils_WIN.cpp
+add_dependencies(adobexmp expat_header_link zlib_header_link)
 
 if (APPLE)
     # Needed for some old Unicode APIs that are used
