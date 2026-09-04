@@ -11,8 +11,8 @@ jobs:
         include:
           - os: ubuntu-latest
             target-platform: linux-64
-          ###- os: macos-13
-          ###  target-platform: osx-64
+          - os: macos-13
+            target-platform: osx-64
           - os: macos-latest
             target-platform: osx-arm64
 
