@@ -39,7 +39,7 @@ mkdir build
 cd build
 
 cmake "${cmake_args[@]}" ..
-make -j$NJOBS VERBOSE=1
+make -j${CPU_COUNT} VERBOSE=1
 
 mkdir -p $PREFIX/bin
 cp -p PinpointWCS $PREFIX/bin
